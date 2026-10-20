@@ -1,5 +1,6 @@
 import { FieldsBand, Notebook } from "@/components/Notebook";
 import { BasisDialog } from "@/components/start/BasisDialog";
+import { CompletionCount } from "@/components/start/CompletionCount";
 import { StartActions } from "@/components/start/StartActions";
 import { STEPS } from "@/lib/steps";
 
@@ -33,6 +34,7 @@ export default function Home() {
         </p>
         <p className="para-small">
           답한 내용은 이 브라우저 안에서만 정리하고, 어디에도 보내거나 저장하지 않아요. 재미로 나를 들여다보는 테스트이고, <span className="nowrap">심리 진단</span>이 아니에요.
+          <CompletionCount />
         </p>
       </div>
     </Notebook>

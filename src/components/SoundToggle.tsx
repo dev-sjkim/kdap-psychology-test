@@ -3,15 +3,14 @@
 import { bgm, useBgm } from "@/lib/audio/bgm";
 
 /**
- * 배경음 버튼. 노트 왼쪽 여백 칸, 맨 위 줄 바로 아래에 둔다(D42).
- * 여백 칸에는 내용이 없어 어느 화면에서도 같은 자리에 둘 수 있다. 켜져 있으면 음파, 꺼져 있으면 사선.
+ * 배경음 버튼. 모든 화면 맨 위 줄 오른쪽 끝(D63). 켜져 있으면 음파, 꺼져 있으면 사선.
  */
 export function SoundToggle() {
   const { playing } = useBgm();
   return (
     <button
       type="button"
-      className={`sound-fab ${playing ? "on" : ""}`}
+      className={`sound-top ${playing ? "on" : ""}`}
       aria-pressed={playing}
       aria-label={playing ? "배경음 끄기" : "배경음 켜기"}
       title={playing ? "배경음 끄기" : "배경음 켜기"}

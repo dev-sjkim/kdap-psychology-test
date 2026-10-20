@@ -9,6 +9,7 @@ import { VALUE_IDS } from "@/data/values";
 import { NOW_WORDS, RELEASE_WORDS, VALUE_WORDS } from "@/data/words";
 import { STORAGE_PREFIX } from "@/lib/app-info";
 import { analyze, localDate, type Analysis, type PickStepId, type StepLog } from "@/lib/analysis/analyze";
+import { recordCompletion } from "@/lib/stats/supabase";
 import { STEPS, stepById, type StepId } from "@/lib/steps";
 
 export interface TestState {
@@ -172,6 +173,8 @@ export const testStore = {
   finish(now = new Date()): Analysis {
     const analysis = analyze({ answers: state.answers, picks: state.picks, logs: state.logs, takenOn: localDate(now) });
     set({ ...state, analysis });
+    // 전체 검사 횟수만 1 올린다(D61). 응답은 보내지 않는다.
+    void recordCompletion();
     return analysis;
   },
 };

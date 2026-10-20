@@ -29,7 +29,7 @@ export function ResultDetails({ analysis: a }: { analysis: Analysis }) {
         {a.personality.tendencies.map((t) => (
           <li key={t.trait}>
             <b>{TRAITS[t.trait].label}</b>
-            <span className={`band band-${t.band}`}>{BAND[t.band]}</span>
+            <span className={`lean-band lean-${t.band}`}>{BAND[t.band]}</span>
             <span>{t.lean}</span>
           </li>
         ))}

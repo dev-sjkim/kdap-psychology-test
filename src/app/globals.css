@@ -1059,12 +1059,13 @@ button {
   align-items: baseline;
   gap: 6px;
 }
-.band {
+/* 기울기 라벨. 머리글 .band와 이름이 겹치지 않게 lean-band를 쓴다 */
+.lean-band {
   font-size: 12px;
   color: var(--muted);
 }
-.band-high,
-.band-low {
+.lean-high,
+.lean-low {
   color: var(--accent);
   font-weight: 600;
 }
@@ -1217,13 +1218,16 @@ button {
 
 @media (hover: hover) and (pointer: fine) {
   .q-arrow:not(:disabled):hover,
-  .sound-fab:hover,
-  .basis-link:hover {
+  .sound-top:hover,
+  .about-btn:hover {
     color: var(--ink);
   }
-  .q-arrow:not(:disabled):hover,
-  .sound-fab:hover {
+  .q-arrow:not(:disabled):hover {
     background: var(--rule);
+  }
+  .sound-top:hover,
+  .about-btn:hover {
+    border-color: var(--muted);
   }
 }
 
@@ -1237,14 +1241,11 @@ button {
 }
 
 /* ── 배경음 버튼: 왼쪽 여백 칸, 맨 위 줄 바로 아래(D42) ─────────────────────────────── */
-/* 배경음 버튼: 오른쪽 아래 엄지 영역, 바닥 버튼 바로 위에 떠 있다(D53). 머리글·본문과 부딪히지 않고 모든 화면에서 같은 자리다. */
-.sound-fab {
-  position: fixed;
-  right: max(14px, calc((100vw - 480px) / 2 + 14px));
-  bottom: calc(env(safe-area-inset-bottom, 0px) + 16px);
-  z-index: 6;
-  width: 36px;
-  height: 36px;
+/* 배경음 버튼: 모든 화면 맨 위 줄 오른쪽 끝(D63) */
+.sound-top {
+  flex: none;
+  width: 28px;
+  height: 28px;
   display: grid;
   place-items: center;
   padding: 0;
@@ -1254,16 +1255,16 @@ button {
   color: var(--muted);
   transition: color 0.2s, border-color 0.2s, background-color 0.2s;
 }
-.sound-fab svg {
-  width: 16px;
-  height: 16px;
+.sound-top svg {
+  width: 15px;
+  height: 15px;
   fill: none;
   stroke: currentColor;
   stroke-width: 2;
   stroke-linecap: round;
   stroke-linejoin: round;
 }
-.sound-fab.on {
+.sound-top.on {
   color: var(--ink);
   border-color: var(--muted);
 }
@@ -1523,19 +1524,11 @@ body {
 }
 .home .para-small {
   margin-top: var(--line);
+  /* 회색 안내문은 괘선에 맞추지 않고 촘촘히. 카운터 문장이 붙어도 한 화면(360×740)에 들어간다 */
+  line-height: 22px;
 }
 
-/* 바닥 버튼 영역 높이(--foot-h, Notebook이 잰다)만큼 위로 올려 겹치지 않게 한다 */
-.notebook .sound-fab {
-  bottom: calc(env(safe-area-inset-bottom, 0px) + var(--foot-h, 0px) + 12px);
-}
-/* PC처럼 노트가 화면보다 짧을 때는 창이 아니라 노트의 오른쪽 아래에 붙인다 */
-@media (min-width: 520px) {
-  .notebook .sound-fab {
-    position: absolute;
-    right: 14px;
-  }
-}
+
 
 /* ── "?" 버튼(메인 화면 맨 위 줄, Date 오른쪽, D54) ─────────────────────────────── */
 .field-right {
@@ -1637,7 +1630,11 @@ body {
   padding: 16px 20px 0;
 }
 .modal.tabbed .btn-quiet {
+  width: auto;
   margin: 14px 20px 0;
+}
+.modal .modal-actions .btn {
+  width: 100%;
 }
 .maker-card {
   margin: 16px 20px 0;
@@ -1696,4 +1693,87 @@ body {
 }
 .modal .maker-card p.maker-kicker { font-size: 12px; line-height: 18px; }
 .modal .maker-card p.maker-contact .field-label { font-size: 12px; }
+
+/* ── 결과 바닥 한 줄: [AI에게 해석 받기][↺](D62) ─────────────────────────────── */
+.foot .foot-row {
+  display: grid;
+  grid-template-columns: 1fr 52px;
+  gap: 8px;
+  align-items: start;
+}
+.restart-sq {
+  width: 52px;
+  height: 52px;
+  display: grid;
+  place-items: center;
+  padding: 0;
+  border: 1px solid var(--rule-strong);
+  border-radius: 2px;
+  background: var(--slip);
+  color: var(--muted);
+  transition: color 0.2s, border-color 0.2s;
+}
+.restart-sq svg {
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.modal.confirm {
+  max-width: 340px;
+}
+
+/* ── 자세히 보기: 알약 토글 + 부드럽게 펼침(D64) ─────────────────────────────── */
+.details-toggle {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin: 8px auto 0;
+  height: 36px;
+  padding: 0 14px 0 16px;
+  border: 1px solid var(--rule-strong);
+  border-radius: 18px;
+  background: var(--slip);
+  color: var(--ink);
+  font-size: 14px;
+  font-weight: 600;
+  transition: border-color 0.2s, background-color 0.2s;
+}
+.details-toggle svg {
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  transition: transform 0.3s var(--ease-out);
+}
+.details-toggle.open svg {
+  transform: rotate(180deg);
+}
+.details-wrap {
+  display: grid;
+  grid-template-rows: 0fr;
+  transition: grid-template-rows 0.4s var(--ease-out);
+}
+.details-wrap.open {
+  grid-template-rows: 1fr;
+}
+.details-wrap > div {
+  overflow: hidden;
+}
+
+/* ── 메인 카운터(D61): 안내문 끝에 이어지는 문장 ─────────────────────────────── */
+.count-inline b {
+  font-weight: 600;
+  color: var(--ink);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .restart-sq:hover,
+  .details-toggle:hover {
+    border-color: var(--muted);
+    color: var(--ink);
+  }
+}
 

@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import { Notebook } from "@/components/Notebook";
 import { HandDate } from "@/components/HandDate";
+import { SoundToggle } from "@/components/SoundToggle";
 import { buildCopyPrompt } from "@/lib/prompt/build-copy-prompt";
 import { useHydrated, useTestState } from "@/lib/state/test-store";
 import { AskAi } from "./AskAi";
@@ -20,12 +21,15 @@ function ResultBand({ day }: { day?: string }) {
       <Link className="brand" href="/">
         마음결
       </Link>
-      {day && (
-        <span className="field">
-          <span aria-hidden="true">Date.</span>
-          <HandDate day={day} />
-        </span>
-      )}
+      <span className="field-right">
+        {day && (
+          <span className="field">
+            <span aria-hidden="true">Date.</span>
+            <HandDate day={day} />
+          </span>
+        )}
+        <SoundToggle />
+      </span>
     </div>
   );
 }
@@ -84,17 +88,22 @@ export function ResultScreen() {
     <Notebook
       band={<ResultBand day={analysis.takenOn} />}
       foot={
-        <>
+        <div className="foot-row">
           <AskAi prompt={prompt} fileName={txtName} />
           <RestartButton />
-        </>
+        </div>
       }
     >
       <ResultCard analysis={analysis} />
-      <button type="button" className="more-toggle" aria-expanded={details} onClick={() => setDetails((d) => !d)}>
-        {details ? "접기" : "자세히 보기"}
+      <button type="button" className={`details-toggle ${details ? "open" : ""}`} aria-expanded={details} aria-controls="result-details" onClick={() => setDetails((d) => !d)}>
+        <span>{details ? "접기" : "자세히 보기"}</span>
+        <svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true">
+          <path d="M6 9 L12 15 L18 9" />
+        </svg>
       </button>
-      {details && <ResultDetails analysis={analysis} />}
+      <div id="result-details" className={`details-wrap ${details ? "open" : ""}`} aria-hidden={!details}>
+        <div>{details && <ResultDetails analysis={analysis} />}</div>
+      </div>
       <p className="footnote">결과는 따로 저장되지 않아요. 복사한 글을 나중에 다시 쓰고 싶으면 메모장에 붙여 두세요.</p>
     </Notebook>
   );

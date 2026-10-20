@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <!-- 마음결: 누런 노트 한 장 위에 연필 빨강 여백선, 그리고 결(물결) 세 줄 -->
+  <rect width="64" height="64" rx="12" fill="#f3eee3"/>
+  <line x1="17" y1="8" x2="17" y2="56" stroke="#d9644a" stroke-width="2"/>
+  <g fill="none" stroke="#24211c" stroke-width="3.2" stroke-linecap="round">
+    <path d="M24 24 C 29 19, 35 29, 40 24 S 51 19, 54 24"/>
+    <path d="M24 33 C 29 28, 35 38, 40 33 S 51 28, 54 33"/>
+    <path d="M24 42 C 29 37, 35 47, 40 42 S 51 37, 54 42"/>
+  </g>
+  <circle cx="51" cy="14" r="4" fill="#c2492f"/>
+</svg>

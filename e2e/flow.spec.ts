@@ -111,11 +111,19 @@ test("시작부터 결과, 해석 복사, 다시 하기까지", async ({ page, c
   await expect(page.getByRole("heading", { name: "눈여겨볼 점" })).toBeVisible();
   await page.getByRole("button", { name: "접기" }).click();
 
-  // 처음부터 다시 하기는 두 번 눌러야 한다.
+  // 바닥은 한 줄 [AI에게 해석 받기][↺]. 다시 하기는 확인 모달을 거친다(D62).
+  const row = await page.locator(".foot-row").boundingBox();
+  const sq = await page.getByRole("button", { name: "처음부터 다시 하기" }).boundingBox();
+  expect(Math.abs(sq!.width - sq!.height)).toBeLessThanOrEqual(1);
+  // 정사각형은 바닥 줄의 첫 줄(맨 위)에 붙어 있고 오른쪽 끝이다.
+  expect(Math.abs(sq!.y - row!.y)).toBeLessThanOrEqual(2);
+  expect(sq!.x + sq!.width).toBeGreaterThan(row!.x + row!.width - 4);
   await page.getByRole("button", { name: "처음부터 다시 하기" }).click();
-  await expect(page.getByRole("button", { name: /한 번 더 누르면/ })).toBeVisible();
+  await expect(page.getByRole("dialog")).toBeVisible();
+  await page.getByRole("button", { name: "남아 있기" }).click();
   await expect(page).toHaveURL(/\/result$/);
-  await page.getByRole("button", { name: /한 번 더 누르면/ }).click();
+  await page.getByRole("button", { name: "처음부터 다시 하기" }).click();
+  await page.getByRole("button", { name: "처음부터", exact: true }).click();
   await expect(page).toHaveURL(/\/$/);
 });
 
@@ -151,7 +159,7 @@ test("문항 번호 옆 ‹ › 로 오가고, 화살표는 숨지 않고 비활
   await startTest(page);
   // 첫 문항의 ‹는 처음 화면으로 가는 버튼이고, 맨 위에는 따로 뒤로 화살표가 없다(D45).
   await expect(page.getByRole("button", { name: "처음 화면으로" })).toBeVisible();
-  await expect(page.locator(".band-progress button")).toHaveCount(0);
+  await expect(page.locator(".band-progress button.icon-btn")).toHaveCount(0); // 뒤로 화살표 없음(배경음 버튼은 있음)
   const next = page.getByRole("button", { name: "다음 문항" });
   await expect(next).toBeDisabled();
   await page.waitForTimeout(500); // 문항 전환 애니메이션이 끝난 뒤 잰다
@@ -235,18 +243,16 @@ test("PC에서 마우스를 올려도 글자 위치와 크기가 변하지 않�
   expect(after).toEqual(before);
 });
 
-test("배경음 버튼은 오른쪽 아래에 떠 있고 바닥 버튼과 겹치지 않으며, 오늘 날짜가 손글씨로 적힌다", async ({ page }) => {
+test("배경음 버튼은 모든 화면 맨 위 줄 오른쪽 끝에 있고, 오늘 날짜가 손글씨로 적힌다", async ({ page }) => {
   await page.goto("/");
   const toggle = page.getByRole("button", { name: /배경음/ });
   await expect(toggle).toBeVisible();
   const box = await toggle.boundingBox();
-  const start = await page.getByRole("button", { name: "시작하기" }).boundingBox();
-  const viewport = page.viewportSize()!;
-  const notebook = await page.locator(".notebook:visible").boundingBox();
-  // 노트의 오른쪽 아래, 바닥 버튼 위에 있다(PC에서는 노트가 가운데 놓이므로 노트 기준으로 잰다).
-  expect(box!.x + box!.width).toBeGreaterThan(notebook!.x + notebook!.width * 0.8);
-  expect(box!.y + box!.height).toBeLessThanOrEqual(start!.y);
-  expect(box!.y).toBeGreaterThan(viewport.height * 0.6);
+  const band = await page.locator(".band").first().boundingBox();
+  // 맨 위 줄(band) 안, 오른쪽 끝에 있다.
+  expect(box!.y).toBeGreaterThanOrEqual(band!.y - 1);
+  expect(box!.y + box!.height).toBeLessThanOrEqual(band!.y + band!.height + 1);
+  expect(box!.x + box!.width).toBeGreaterThan(band!.x + band!.width * 0.85);
   const before = await toggle.getAttribute("aria-pressed");
   await toggle.click();
   await expect(page.getByRole("button", { name: /배경음/ })).not.toHaveAttribute("aria-pressed", before ?? "");
@@ -255,7 +261,9 @@ test("배경음 버튼은 오른쪽 아래에 떠 있고 바닥 버튼과 겹치
   // "?" 버튼은 메인 화면에만 있다.
   await expect(page.getByRole("button", { name: "마음결에 대해" })).toBeVisible();
   await page.getByRole("button", { name: "시작하기" }).click();
-  await expect(page.locator("button[aria-label*='배경음']:visible")).toBeVisible();
+  const t2 = await page.locator("button[aria-label*='배경음']:visible").boundingBox();
+  const band2 = await page.locator(".band:visible").first().boundingBox();
+  expect(t2!.y + t2!.height).toBeLessThanOrEqual(band2!.y + band2!.height + 1);
   await expect(page.getByRole("button", { name: "마음결에 대해" })).toHaveCount(0);
 });
 

@@ -33,6 +33,8 @@ const pen = Nanum_Pen_Script({
 
 export const metadata: Metadata = {
   title: "마음결",
+  applicationName: "마음결",
+  appleWebApp: { title: "마음결" },
   description: "4분 만에 적어 보는 나의 성격과 가치. 결과를 복사해 쓰시는 AI에게 해석을 받아 보세요.",
 };
 
