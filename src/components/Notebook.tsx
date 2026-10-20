@@ -23,7 +23,7 @@ export function Notebook({ band, foot, children }: Props) {
   );
 }
 
-/** 노트 인쇄 칸: "No. ____   Date. (손글씨 날짜)" */
+/** 노트 인쇄 칸: 왼쪽 "No. ____", 오른쪽 끝 "Date. (손글씨 날짜)"(D48) */
 export function FieldsBand({ day }: { day?: string }) {
   return (
     <div className="band band-fields">
