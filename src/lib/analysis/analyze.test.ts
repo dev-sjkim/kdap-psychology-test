@@ -6,10 +6,13 @@ import { analyze, findPatterns, tendencyOf, valueOrder } from "./analyze";
 import { sampleInput } from "./fixtures";
 
 describe("문항과 단어 목록", () => {
-  it("성격 문항은 특성마다 정방향 1개, 역방향 1개다", () => {
+  it("성격 문항은 Mini-IPIP 원판 20문항, 특성마다 4문항이다", () => {
+    expect(LIKERT_ITEMS).toHaveLength(20);
     for (const trait of TRAIT_ORDER) {
       const items = LIKERT_ITEMS.filter((i) => i.trait === trait);
-      expect(items.map((i) => i.keyed).sort()).toEqual(["+", "-"]);
+      expect(items).toHaveLength(4);
+      expect(items.some((i) => i.keyed === "+")).toBe(true);
+      expect(items.some((i) => i.keyed === "-")).toBe(true);
     }
   });
 
@@ -20,11 +23,12 @@ describe("문항과 단어 목록", () => {
 });
 
 describe("tendencyOf", () => {
-  it("역방향 문항을 뒤집어 평균을 내고, 4 이상은 높은 쪽, 2 이하는 낮은 쪽으로 본다", () => {
-    expect(tendencyOf("extraversion", { mipip_01: 5, mipip_06: 1 })).toMatchObject({ mean: 5, band: "high", lean: "사람들 속에서 힘이 나는 쪽", strong: true });
-    expect(tendencyOf("extraversion", { mipip_01: 4, mipip_06: 2 })).toMatchObject({ mean: 4, band: "high", strong: false });
-    expect(tendencyOf("extraversion", { mipip_01: 3, mipip_06: 2 })).toMatchObject({ mean: 3.5, band: "middle", lean: "상황에 따라 달라지는 편" });
-    expect(tendencyOf("neuroticism", { mipip_04: 1, mipip_09: 5 })).toMatchObject({ band: "low", lean: "마음이 잘 흔들리지 않는 쪽" });
+  it("역방향 문항을 뒤집어 네 문항 평균을 내고, 3.75 이상은 높은 쪽, 2.25 이하는 낮은 쪽으로 본다", () => {
+    const E = (a: number, b: number, c: number, d: number) => ({ mipip_01: a, mipip_06: b, mipip_11: c, mipip_16: d });
+    expect(tendencyOf("extraversion", E(5, 1, 5, 1))).toMatchObject({ mean: 5, ratio: 1, band: "high", lean: "사람들 속에서 힘이 나는 쪽", strong: true });
+    expect(tendencyOf("extraversion", E(4, 2, 4, 2))).toMatchObject({ mean: 4, band: "high", strong: false });
+    expect(tendencyOf("extraversion", E(4, 2, 3, 3))).toMatchObject({ mean: 3.5, band: "middle", lean: "상황에 따라 달라지는 편" });
+    expect(tendencyOf("neuroticism", { mipip_04: 1, mipip_09: 5, mipip_14: 1, mipip_19: 5 })).toMatchObject({ mean: 1, ratio: 0, band: "low", lean: "마음이 잘 흔들리지 않는 쪽" });
   });
 });
 
@@ -79,8 +83,8 @@ describe("analyze", () => {
 
   it("응답이 빠지거나 개수가 맞지 않으면 오류를 낸다", () => {
     const missing = sampleInput();
-    delete missing.answers.mipip_10;
-    expect(() => analyze(missing)).toThrow(/mipip_10/);
+    delete missing.answers.mipip_20;
+    expect(() => analyze(missing)).toThrow(/mipip_20/);
     const outside = sampleInput();
     outside.picks.narrow = ["v_care", "v_influence", "v_nature"];
     expect(() => analyze(outside)).toThrow(/앞에서 고른/);

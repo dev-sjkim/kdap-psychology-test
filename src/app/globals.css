@@ -1362,3 +1362,125 @@ body {
   user-select: text;
   -webkit-touch-callout: default;
 }
+
+/* ── 프로필 카드(D51): 오각형 그래프 + 가치 막대 + 기분 칩 + 작은 그림 ─────────────────────────────── */
+.result-card.profile {
+  padding: 14px 14px 12px;
+}
+.profile-top {
+  display: grid;
+  grid-template-columns: 1fr 72px;
+  gap: 6px;
+  align-items: start;
+}
+.radar {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+.radar-grid { fill: none; stroke: var(--rule-strong); stroke-width: 1; }
+.radar-mid { fill: none; stroke: var(--muted); stroke-width: 1; stroke-dasharray: 3 4; }
+.radar-spoke { stroke: var(--rule-strong); stroke-width: 1; }
+.radar-shape {
+  fill: var(--accent);
+  fill-opacity: 0.18;
+  stroke: var(--accent);
+  stroke-width: 2;
+  stroke-linejoin: round;
+  stroke-dasharray: 600;
+  stroke-dashoffset: 600;
+  animation: draw 1.1s 0.2s var(--ease-out) forwards;
+}
+.radar-dot { fill: var(--accent); animation: fade-in 0.4s 1s both; }
+.radar-label { fill: var(--ink); font-family: var(--font-body-stack); font-size: 12px; font-weight: 600; }
+.profile-motif .motif {
+  max-height: 64px;
+  margin-top: 6px;
+}
+.profile-motif .motif .ink { stroke-width: 2.6; }
+.profile-rows {
+  margin: 4px 0 0;
+  display: grid;
+  gap: 6px;
+}
+.profile-rows > div {
+  display: grid;
+  grid-template-columns: 64px 1fr;
+  gap: 8px;
+  align-items: center;
+  min-height: 24px;
+}
+.profile-rows dt {
+  font-size: 12px;
+  color: var(--muted);
+  white-space: nowrap;
+}
+.profile-rows dd {
+  margin: 0;
+  min-width: 0;
+}
+.value-bars {
+  display: grid;
+  gap: 4px;
+}
+.vbar {
+  display: grid;
+  grid-template-columns: 14px 1fr;
+  gap: 6px;
+  align-items: center;
+  height: 20px;
+}
+.vbar-rank {
+  font-family: var(--font-display-stack);
+  font-weight: 700;
+  font-size: 12px;
+  color: var(--muted);
+  text-align: right;
+}
+.vbar-fill {
+  position: relative;
+  display: flex;
+  align-items: center;
+  height: 20px;
+  min-width: 56px;
+  padding: 0 8px;
+  background: color-mix(in srgb, var(--v) 28%, transparent);
+  border-left: 3px solid var(--v);
+  border-radius: 1px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  animation: grow-bar 0.6s var(--ease-out) both;
+  transform-origin: left center;
+}
+@keyframes grow-bar {
+  from { transform: scaleX(0.2); opacity: 0; }
+  to { transform: none; opacity: 1; }
+}
+.vbar-word {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--ink);
+}
+.chip-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 6px;
+}
+.mini-chip {
+  display: inline-block;
+  padding: 1px 8px;
+  border: 1px solid var(--slip-edge);
+  border-radius: 2px;
+  background: var(--paper);
+  font-size: 12px;
+  line-height: 18px;
+  white-space: nowrap;
+}
+.mini-chip.pencil {
+  border: 0;
+  padding: 0 2px;
+  margin-left: 0;
+  font-weight: 600;
+}
+

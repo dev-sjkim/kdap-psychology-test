@@ -4,18 +4,13 @@ import type { TestInput } from "./analyze";
 
 export function sampleInput(): TestInput {
   return {
-    // 외향성 높음(5, 역 1), 친화성 높음(4, 역 2), 성실성 중간(3, 역 3), 정서 민감성 낮음(1, 역 5), 개방성 높음(5, 역 2)
+    // 외향성 높음, 친화성 높음(경계 바로 위), 성실성 중간, 정서 민감성 낮음, 개방성 높음
     answers: {
-      mipip_01: 5,
-      mipip_06: 1,
-      mipip_02: 4,
-      mipip_07: 2,
-      mipip_13: 3,
-      mipip_08: 3,
-      mipip_04: 1,
-      mipip_09: 5,
-      mipip_05: 5,
-      mipip_10: 2,
+      mipip_01: 5, mipip_06: 1, mipip_11: 5, mipip_16: 1, // E: 5
+      mipip_02: 4, mipip_07: 2, mipip_12: 4, mipip_17: 2, // A: 4
+      mipip_03: 3, mipip_08: 3, mipip_13: 3, mipip_18: 3, // C: 3
+      mipip_04: 1, mipip_09: 5, mipip_14: 1, mipip_19: 5, // N: 1
+      mipip_05: 5, mipip_10: 2, mipip_15: 1, mipip_20: 2, // O: 4.5
     },
     picks: {
       values: ["v_care", "v_influence", "v_leadership", "v_leisure", "v_stability"],

@@ -20,7 +20,7 @@ async function expectNoScroll(page: Page, where: string) {
 
 async function answerLikert(page: Page, screenshots = false) {
   await expect(page).toHaveURL(/\/test\/personality$/);
-  for (let n = 1; n <= 10; n++) {
+  for (let n = 1; n <= 20; n++) {
     await expect(page.locator(".q-count b")).toHaveText(String(n));
     if (n === 1) await expectNoScroll(page, "평소의 나 1번 문항");
     await page.getByRole("radio").nth((n * 2) % 5).click();
@@ -73,12 +73,15 @@ async function walk(page: Page, screenshots = false) {
 }
 
 test("시작부터 결과, 해석 복사, 다시 하기까지", async ({ page, context }) => {
+  test.setTimeout(120_000);
   await context.grantPermissions(["clipboard-read", "clipboard-write"]);
   await walk(page, true);
   await page.waitForTimeout(1800); // 그림이 다 그려진 뒤 찍는다
   await shot(page, "07-result");
 
-  // 결과 카드와 주 버튼이 한 화면에 들어온다.
+  // 결과 카드와 주 버튼이 한 화면에 들어온다. 카드에는 성격 그래프와 가치 막대가 있다.
+  await expect(page.getByRole("img", { name: /성격 다섯 특성 그래프/ })).toBeVisible();
+  await expect(page.locator(".vbar")).toHaveCount(3);
   const card = await page.getByRole("article", { name: "결과 카드" }).boundingBox();
   const button = await page.getByRole("button", { name: "AI에게 해석 받기" }).boundingBox();
   const viewport = page.viewportSize()!;
@@ -109,6 +112,7 @@ test("시작부터 결과, 해석 복사, 다시 하기까지", async ({ page, c
 });
 
 test("클립보드가 막히면 같은 자리에 직접 복사할 글을 보여 준다", async ({ page }) => {
+  test.setTimeout(120_000);
   await page.addInitScript(() => {
     Object.defineProperty(navigator, "clipboard", { value: { writeText: () => Promise.reject(new Error("blocked")) } });
     document.execCommand = () => false;
@@ -174,7 +178,7 @@ test("단계마다 주소가 따로 있고, 끝낸 단계 칸은 빨간색이며
   expect(color).toBe("rgb(194, 73, 47)"); // --accent #c2492f
   await page.goBack();
   await expect(page).toHaveURL(/\/test\/personality$/);
-  await expect(page.locator(".q-count b")).toHaveText("10");
+  await expect(page.locator(".q-count b")).toHaveText("20");
 });
 
 test("근거 보기는 모달로 열리고 아래 화면이 밀리지 않는다", async ({ page }) => {
@@ -227,6 +231,7 @@ test("배경음 버튼은 모든 화면에서 왼쪽 여백 칸 같은 자리에
 });
 
 test("글자는 드래그로 선택되지 않고, 결과의 프롬프트 상자만 선택할 수 있다", async ({ page }) => {
+  test.setTimeout(120_000);
   await page.addInitScript(() => {
     Object.defineProperty(navigator, "clipboard", { value: { writeText: () => Promise.reject(new Error("blocked")) } });
     document.execCommand = () => false;
@@ -235,7 +240,7 @@ test("글자는 드래그로 선택되지 않고, 결과의 프롬프트 상자�
   const sel = (q: string) => page.locator(q).first().evaluate((el) => getComputedStyle(el).userSelect);
   expect(await sel(".lede")).toBe("none");
   await walk(page);
-  expect(await sel(".card-def")).toBe("none");
+  expect(await sel(".card-note")).toBe("none");
   await page.getByRole("button", { name: "AI에게 해석 받기" }).click();
   expect(await sel(".fallback-text")).toBe("text");
 });

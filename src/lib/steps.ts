@@ -19,8 +19,8 @@ export const STEPS: StepDef[] = [
     kind: "likert",
     title: "평소의 나",
     prompt: "되고 싶은 모습 말고, 지금 평소의 나를 떠올리며 골라 주세요.",
-    min: 10,
-    max: 10,
+    min: 20,
+    max: 20,
   },
   {
     id: "values",

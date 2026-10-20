@@ -3,7 +3,7 @@ import { BasisDialog } from "@/components/start/BasisDialog";
 import { StartActions } from "@/components/start/StartActions";
 import { STEPS } from "@/lib/steps";
 
-const COUNTS = ["10문항", "5개", "3개", "1~3개", "1~2개"];
+const COUNTS = ["20문항", "5개", "3개", "1~3개", "1~2개"];
 
 export default function Home() {
   return (
@@ -11,7 +11,7 @@ export default function Home() {
       <div className="enter">
         <h1 className="wordmark">마음결</h1>
         <p className="lede">
-          3분 만에 적어 보는
+          4분 만에 적어 보는
           <br />
           나의 성격과 가치
         </p>

@@ -30,8 +30,10 @@ export type Band = "high" | "middle" | "low";
 
 export interface Tendency {
   trait: TraitId;
-  /** 두 문항 평균(1~5) */
+  /** 네 문항 평균(1~5) */
   mean: number;
+  /** 카드 그래프용 0~1 비율 ((mean − 1) / 4) */
+  ratio: number;
   band: Band;
   /** 기운 쪽을 말로 */
   lean: string;
@@ -83,17 +85,18 @@ function check(input: TestInput) {
   for (const id of input.picks.grow) if (!VALUE_IDS.includes(id as ValueId)) throw new Error(`알 수 없는 가치: ${id}`);
 }
 
-/** 특성별 두 문항(정방향 + 역방향)의 평균. 4 이상은 높은 쪽, 2 이하는 낮은 쪽으로 기울었다고 본다. */
+/** 특성별 네 문항(역방향은 뒤집음)의 평균(1~5). 3.75 이상은 높은 쪽, 2.25 이하는 낮은 쪽으로 기울었다고 본다(D50). */
 export function tendencyOf(trait: TraitId, answers: Record<string, number>): Tendency {
   const scored = LIKERT_ITEMS.filter((i) => i.trait === trait).map((i) => (i.keyed === "+" ? answers[i.id] : LIKERT_MAX + LIKERT_MIN - answers[i.id]));
   const mean = scored.reduce((a, b) => a + b, 0) / scored.length;
-  const band: Band = mean >= 4 ? "high" : mean <= 2 ? "low" : "middle";
+  const band: Band = mean >= 3.75 ? "high" : mean <= 2.25 ? "low" : "middle";
   return {
     trait,
     mean,
+    ratio: (mean - 1) / 4,
     band,
     lean: band === "middle" ? "상황에 따라 달라지는 편" : TRAITS[trait].lean[band],
-    strong: Math.abs(mean - 3) >= 1.5,
+    strong: Math.abs(mean - 3) >= 1.25,
   };
 }
 

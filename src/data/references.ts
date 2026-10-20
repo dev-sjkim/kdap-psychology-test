@@ -17,7 +17,7 @@ export const REFERENCES: Reference[] = [
     citation:
       "Donnellan, M. B., Oswald, F. L., Baird, B. M., & Lucas, R. E. (2006). The Mini-IPIP scales: Tiny-yet-effective measures of the Big Five factors of personality. Psychological Assessment, 18(2), 192–203.",
     doi: "10.1037/1040-3590.18.2.192",
-    usedForKo: "성격 5지선다 문항. Mini-IPIP 20문항 중 10문항을 골라 썼다(IPIP 문항은 퍼블릭 도메인)",
+    usedForKo: "성격 5지선다 20문항(IPIP 문항은 퍼블릭 도메인)",
   },
   {
     id: "schwartz1992",

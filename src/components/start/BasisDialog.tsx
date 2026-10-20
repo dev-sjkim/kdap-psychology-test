@@ -40,11 +40,11 @@ export function BasisDialog() {
               어떤 근거로 만들었나요?
             </h2>
             <ul>
-              <li>평소의 나: Big Five 성격 검사 Mini-IPIP(Donnellan 외, 2006)의 20문항 중 10문항을 골라 썼어요.</li>
+              <li>평소의 나: Big Five 성격 검사 Mini-IPIP(Donnellan 외, 2006) 20문항을 썼어요.</li>
               <li>가치 단어: Schwartz의 기본가치 10가지(1992, 2012)마다 단어 두 개씩을 골랐어요.</li>
               <li>고르고 덜어내는 방식: Personal Values Card Sort(Miller 외, 2001)에서 아이디어를 빌렸어요.</li>
             </ul>
-            <p>짧게 줄인 문항과 앱이 고른 단어라 검증된 검사는 아니에요. 점수를 매기기보다 어느 쪽으로 기울었는지 가볍게 살펴봐요.</p>
+            <p>한국어판 검증과 규준이 없어 검증된 검사는 아니에요. 점수를 매기기보다 어느 쪽으로 기울었는지 가볍게 살펴봐요.</p>
             <p className="refs">참고: {REFERENCES.map((r) => r.short).join(" · ")}</p>
             <button type="button" className="btn btn-quiet" onClick={close}>
               닫기

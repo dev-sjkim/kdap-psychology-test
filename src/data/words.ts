@@ -12,6 +12,8 @@ export type Pole = "high" | "low";
 export interface TraitInfo {
   id: TraitId;
   label: string;
+  /** 카드 그래프 축에 쓰는 2~3자 이름 */
+  short: string;
   labelEn: string;
   /** 문항 응답이 한쪽으로 기울었을 때 쓰는 말 */
   lean: Record<Pole, string>;
@@ -21,30 +23,35 @@ export const TRAITS: Record<TraitId, TraitInfo> = {
   extraversion: {
     id: "extraversion",
     label: "외향성",
+    short: "외향",
     labelEn: "Extraversion",
     lean: { high: "사람들 속에서 힘이 나는 쪽", low: "혼자만의 시간에서 힘을 얻는 쪽" },
   },
   agreeableness: {
     id: "agreeableness",
     label: "친화성",
+    short: "친화",
     labelEn: "Agreeableness",
     lean: { high: "다른 사람 마음을 먼저 살피는 쪽", low: "할 말은 분명히 하는 쪽" },
   },
   conscientiousness: {
     id: "conscientiousness",
     label: "성실성",
+    short: "성실",
     labelEn: "Conscientiousness",
     lean: { high: "미리 계획하고 챙기는 쪽", low: "흐름에 맡기고 유연한 쪽" },
   },
   neuroticism: {
     id: "neuroticism",
     label: "정서 민감성",
+    short: "민감",
     labelEn: "Neuroticism",
     lean: { high: "감정을 섬세하게 느끼는 쪽", low: "마음이 잘 흔들리지 않는 쪽" },
   },
   openness: {
     id: "openness",
     label: "개방성",
+    short: "개방",
     labelEn: "Openness",
     lean: { high: "새로운 생각을 즐기는 쪽", low: "현실적이고 실용적인 쪽" },
   },

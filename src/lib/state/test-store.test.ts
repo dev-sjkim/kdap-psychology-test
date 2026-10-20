@@ -14,7 +14,7 @@ function answerAll() {
 }
 
 describe("testStore", () => {
-  it("문항 10개와 단어 고르기 4단계를 마치면 결과를 만든다", () => {
+  it("문항 20개와 단어 고르기 4단계를 마치면 결과를 만든다", () => {
     testStore.start();
     const lasts = answerAll();
     expect(lasts.at(-1)).toBe(true); // 마지막 문항에서만 다음 단계로 갈 차례라고 알려 준다
