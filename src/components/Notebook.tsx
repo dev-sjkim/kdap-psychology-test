@@ -22,12 +22,16 @@ export function Notebook({ band, foot, children }: Props) {
   );
 }
 
-/** 노트 인쇄 칸: 왼쪽 "No. ____", 오른쪽 끝 "Date. (손글씨 날짜)" + 선택 요소(메인 화면의 ? 버튼)(D48, D54) */
-export function FieldsBand({ day, extra }: { day?: string; extra?: ReactNode }) {
+/**
+ * 노트 인쇄 칸: 왼쪽 "No. ____", 오른쪽 끝 "Date. (손글씨 날짜)" + 선택 요소(메인 화면의 ? 버튼)(D48, D54).
+ * No. 밑줄에는 일련번호를 손글씨로 적는다(D67): 메인은 지금까지 적힌 장 수, 결과는 이 결과의 번호. 없으면 빈 밑줄.
+ */
+export function FieldsBand({ day, no, extra }: { day?: string; no?: ReactNode; extra?: ReactNode }) {
   return (
     <div className="band band-fields">
-      <span className="field" aria-hidden="true">
-        No.<span className="blank" />
+      <span className="field">
+        <span aria-hidden="true">No.</span>
+        <span className="hand-date hand-no num">{no}</span>
       </span>
       <span className="field-right">
         <span className="field">

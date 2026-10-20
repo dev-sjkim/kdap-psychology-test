@@ -143,8 +143,8 @@ export function traitValueLink(tendencies: Tendency[], top: ValueId): string | n
   const t = tendencies.find((x) => x.trait === pair.trait);
   if (!t || t.band === "middle") return null;
   const v = josa(label(top), "을/를");
-  if (t.band === "high") return `${pair.high} 편이고, 1순위로 ${v} 남겼어요. 기질과 가치가 같은 쪽을 보고 있어요.`;
-  return `${pair.low} 편인데, 1순위로 ${v} 남겼어요. 기질과 가치가 서로 다른 쪽을 보고 있어서, 이 사이가 요즘의 과제일 수 있어요.`;
+  if (t.band === "high") return `${pair.high} 편이고, 1순위로 ${v} 남겼어요. 성격과 가치가 같은 쪽을 보고 있어요.`;
+  return `${pair.low} 편인데, 1순위로 ${v} 남겼어요. 성격은 이쪽인데 지키고 싶은 건 저쪽이라, 둘 사이에서 애쓰는 때가 있을 거예요.`;
 }
 
 /** 데이터끼리의 연결 중 눈여겨볼 것을 규칙으로 찾는다. 첫 항목이 가장 강한 연결이다(카드의 headline). */
@@ -164,37 +164,37 @@ export function findPatterns(
   const counts = new Map<ValueId, number>();
   keptValues.forEach((v) => counts.set(v, (counts.get(v) ?? 0) + 1));
   for (const [v, n] of counts) {
-    if (n >= 2) out.push(`끝까지 남긴 세 단어 중 ${n}개가 같은 가치(${label(v)})예요. 이 가치가 특히 크게 자리 잡고 있을 수 있어요.`);
+    if (n >= 2) out.push(`끝까지 남긴 세 단어 중 ${n}개가 ${label(v)} 쪽 단어예요. 지금 가장 크게 자리 잡은 가치예요.`);
   }
 
   const distinct = [...new Set(keptValues)];
   for (const [a, b] of CONFLICT_PAIRS) {
     if (distinct.includes(a) && distinct.includes(b)) {
-      out.push(`남긴 가치 중 ${josa(label(a), "와/과")} ${josa(label(b), "은/는")} 서로 반대 방향을 당기는 가치예요. 두 마음 사이에서 균형을 잡고 있을 수 있어요.`);
+      out.push(`남긴 가치 중 ${josa(label(a), "와/과")} ${josa(label(b), "은/는")} 서로 반대편에 있는 가치예요. 둘 다 놓기 싫어서 그 사이를 오가는 중일 수 있어요.`);
     }
   }
 
   for (const r of release) {
     const w = josa(`'${r.word}'`, "을/를");
     if (keptValues.includes(r.valueId)) {
-      out.push(`${w} 덜어 내고 싶다고 했는데, 그 자리에 들어설 가치(${label(r.valueId)})는 이미 끝까지 남긴 가치예요. 지키고 싶은 것을 지금 무엇이 가리고 있는지 보여 줘요.`);
+      out.push(`${w} 내려놓고 싶다고 했는데, 그 자리에 들어설 ${josa(label(r.valueId), "은/는")} 끝까지 남긴 가치이기도 해요. 지키고 싶은 걸 지금 이게 가리고 있는 셈이에요.`);
     } else if (grow.includes(r.valueId)) {
-      out.push(`${w} 덜어 내면 자리가 생기는 가치(${label(r.valueId)})를 더 키우고 싶은 힘으로도 골랐어요. 비우는 것과 키우는 것이 같은 방향이에요.`);
+      out.push(`${w} 내려놓으면 자리가 생기는 ${josa(label(r.valueId), "을/를")} 키우고 싶은 힘으로도 골랐어요. 비우려는 것과 키우려는 것이 같은 방향이에요.`);
     }
   }
 
   const growIn = grow.filter((v) => keptValues.includes(v));
   const growOut = grow.filter((v) => !keptValues.includes(v));
   if (growOut.length > 0) {
-    out.push(`더 키우고 싶은 힘(${labels(growOut)})은 끝까지 남긴 가치에 없어요. 지금 지키는 것과 바라는 방향 사이에 거리가 있을 수 있어요.`);
+    out.push(`키우고 싶은 ${josa(labels(growOut), "은/는")} 끝까지 남긴 가치에는 없어요. 지금 지키는 것과 앞으로 바라는 것이 조금 다른 셈이에요.`);
   }
   if (growIn.length > 0) {
-    out.push(`더 키우고 싶은 힘(${labels(growIn)})은 이미 끝까지 남긴 가치이기도 해요. 소중하지만 아직 충분히 누리지 못한다고 느낄 수 있어요.`);
+    out.push(`키우고 싶은 ${josa(labels(growIn), "은/는")} 끝까지 남긴 가치이기도 해요. 소중한데 아직 모자라다고 느끼는 쪽이에요.`);
   }
 
   const backAgain = letGo.filter((l) => grow.includes(l.valueId));
   if (backAgain.length > 0) {
-    out.push(`마지막에 내려놓은 '${backAgain[0].word}'의 가치(${label(backAgain[0].valueId)})를 더 키우고 싶은 힘으로 다시 골랐어요.`);
+    out.push(`마지막에 내려놓은 '${backAgain[0].word}'와 같은 쪽인 ${josa(label(backAgain[0].valueId), "을/를")} 키우고 싶은 힘으로 다시 골랐어요.`);
   }
   return out.slice(0, 5);
 }

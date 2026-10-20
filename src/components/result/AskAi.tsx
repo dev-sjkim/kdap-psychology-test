@@ -1,29 +1,21 @@
 "use client";
 
 import { useState } from "react";
-import { copyText, downloadText, isInAppBrowser } from "@/lib/clipboard";
-
-export const AI_LINKS = [
-  { name: "ChatGPT", href: "https://chatgpt.com/" },
-  { name: "Gemini", href: "https://gemini.google.com/app" },
-  { name: "Claude", href: "https://claude.ai/new" },
-];
+import { copyText, downloadText } from "@/lib/clipboard";
 
 type Status = "idle" | "copied" | "failed";
 
 /**
- * 복사와 AI 열기를 한자리에서 한다(D25).
- * [AI에게 해석 받기]를 누르면 해석 프롬프트가 복사되고, 그 버튼 자리에 AI 버튼 세 개가 나타난다.
- * 바닥 영역이 커져 결과를 가리지 않게, 복사 뒤에는 큰 버튼을 없애고 한 줄 안내 + AI 버튼만 둔다.
- * AI 버튼을 누를 때도 한 번 더 복사한다. 그사이 그림 프롬프트를 복사해 클립보드가 바뀌었어도 해석 프롬프트가 붙여 넣어진다.
+ * 해석 프롬프트 복사(D25, D70).
+ * [AI에게 해석 받기]를 누르면 프롬프트가 복사되고, 그 자리에 한 줄 안내만 남는다.
+ * AI 서비스로 가는 링크는 두지 않는다(D70): 새 창이 로그인 화면으로 떨어지거나 휴대폰에서는 앱이 아닌 웹이 열려 오히려 헷갈렸다.
+ * 사용자는 평소 쓰던 AI 앱이나 탭으로 옮겨 붙여 넣는다.
  */
 export function AskAi({ prompt, fileName }: { prompt: string; fileName: string }) {
   const [status, setStatus] = useState<Status>("idle");
-  const [inApp, setInApp] = useState(false);
 
   const copy = async () => {
     const ok = await copyText(prompt);
-    setInApp(isInAppBrowser(navigator.userAgent));
     setStatus(ok ? "copied" : "failed");
   };
 
@@ -39,7 +31,7 @@ export function AskAi({ prompt, fileName }: { prompt: string; fileName: string }
     <div className="ask enter">
       {status === "copied" ? (
         <p className="ask-msg" role="status">
-          <b>복사했어요.</b> 쓰는 AI를 누르고, 대화창에 붙여 넣어 보내 주세요.
+          <b>복사했어요.</b> AI 대화창에 붙여 넣으세요.
         </p>
       ) : (
         <>
@@ -49,33 +41,15 @@ export function AskAi({ prompt, fileName }: { prompt: string; fileName: string }
           <textarea className="fallback-text" readOnly value={prompt} onFocus={(e) => e.currentTarget.select()} aria-label="해석 프롬프트 전체" />
         </>
       )}
-      <div className="ai-links">
-        {AI_LINKS.map((l) => (
-          <a
-            key={l.name}
-            href={l.href}
-            target="_blank"
-            rel="noreferrer"
-            aria-label={`${l.name} 새 창으로 열기`}
-            onClick={() => {
-              if (status === "copied") void copyText(prompt);
-            }}
-          >
-            {l.name}
-          </a>
-        ))}
-      </div>
+      {/* 두 줄 안에 끝낸다(큰 버튼과 같은 높이, D71). 저장 안내는 다시 하기 모달이 맡는다 */}
       <p className="small-note">
-        {inApp ? "앱 안 브라우저라면 오른쪽 위 메뉴의 '다른 브라우저로 열기'가 더 편해요. " : "휴대폰은 길게 눌러 붙여넣기, PC는 Ctrl+V. "}
-        {status === "copied" ? (
-          <button type="button" className="inline-link" onClick={copy}>
-            다시 복사
-          </button>
-        ) : (
-          <button type="button" className="inline-link" onClick={() => downloadText(fileName, prompt, "text/plain")}>
-            텍스트 파일로 저장
-          </button>
-        )}
+        <button type="button" className="inline-link" onClick={copy}>
+          다시 복사
+        </button>
+        {" · "}
+        <button type="button" className="inline-link" onClick={() => downloadText(fileName, prompt, "text/plain")}>
+          텍스트 파일로 저장
+        </button>
       </p>
     </div>
   );

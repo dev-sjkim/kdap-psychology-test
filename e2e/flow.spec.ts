@@ -89,6 +89,9 @@ test("시작부터 결과, 해석 복사, 다시 하기까지", async ({ page, c
   await expect(page.getByRole("img", { name: /성격 다섯 특성 그래프/ })).toBeVisible();
   await expect(page.locator(".vbar")).toHaveCount(3);
   await expect(page.locator(".headline")).toBeVisible();
+  // 자세히 보기 전에는 결과 화면이 스크롤되지 않고, 복사 뒤에도 바닥 높이가 그대로다(D71)
+  await expectNoScroll(page, "결과 화면(자세히 보기 전)");
+  const footBefore = await page.locator(".foot:visible").boundingBox();
   const card = await page.getByRole("article", { name: "결과 카드" }).boundingBox();
   const button = await page.getByRole("button", { name: "AI에게 해석 받기" }).boundingBox();
   const viewport = page.viewportSize()!;
@@ -96,8 +99,13 @@ test("시작부터 결과, 해석 복사, 다시 하기까지", async ({ page, c
   expect(button!.y + button!.height).toBeLessThanOrEqual(viewport.height);
 
   await page.getByRole("button", { name: "AI에게 해석 받기" }).click();
-  await expect(page.getByRole("link", { name: /ChatGPT/ })).toBeVisible();
+  // AI 서비스 링크는 두지 않는다(D70). 안내 한 줄과 [다시 복사]·[텍스트 파일로 저장]만 남는다.
+  await expect(page.getByRole("link")).toHaveCount(0);
   await expect(page.getByRole("status")).toContainText("복사했어요");
+  await expect(page.getByRole("button", { name: "다시 복사" })).toBeVisible();
+  const footAfter = await page.locator(".foot:visible").boundingBox();
+  expect(Math.abs(footAfter!.height - footBefore!.height)).toBeLessThanOrEqual(1);
+  await expectNoScroll(page, "결과 화면(복사 뒤)");
   await page.waitForTimeout(400);
   await shot(page, "08-copied");
   const prompt = await page.evaluate(() => navigator.clipboard.readText());
@@ -107,9 +115,17 @@ test("시작부터 결과, 해석 복사, 다시 하기까지", async ({ page, c
   expect(prompt).toContain("## 6. 이번 주 작은 한 걸음");
   expect(prompt.length).toBeLessThan(4500);
 
+  // 자세히 보기(D70): 펼치면 상세 맨 위로 스크롤되고, [접기]는 바닥 줄 위에 떠 있다. 접으면 맨 위로 돌아간다.
   await page.getByRole("button", { name: "자세히 보기" }).click();
   await expect(page.getByRole("heading", { name: "눈여겨볼 점" })).toBeVisible();
-  await page.getByRole("button", { name: "접기" }).click();
+  await expect.poll(() => page.evaluate(() => window.scrollY), { timeout: 3000 }).toBeGreaterThan(40);
+  const fold = page.locator(".foot .details-toggle.fold");
+  await expect(fold).toBeVisible();
+  const foldBox = await fold.boundingBox();
+  expect(foldBox!.y + foldBox!.height).toBeLessThanOrEqual(page.viewportSize()!.height);
+  await fold.click();
+  await expect.poll(() => page.evaluate(() => window.scrollY), { timeout: 3000 }).toBe(0);
+  await expect(page.getByRole("button", { name: "자세히 보기" })).toBeVisible();
 
   // 바닥은 한 줄 [AI에게 해석 받기][↺]. 다시 하기는 확인 모달을 거친다(D62).
   const row = await page.locator(".foot-row").boundingBox();
@@ -120,7 +136,7 @@ test("시작부터 결과, 해석 복사, 다시 하기까지", async ({ page, c
   expect(sq!.x + sq!.width).toBeGreaterThan(row!.x + row!.width - 4);
   await page.getByRole("button", { name: "처음부터 다시 하기" }).click();
   await expect(page.getByRole("dialog")).toBeVisible();
-  await page.getByRole("button", { name: "남아 있기" }).click();
+  await page.getByRole("button", { name: "계속 보기" }).click();
   await expect(page).toHaveURL(/\/result$/);
   await page.getByRole("button", { name: "처음부터 다시 하기" }).click();
   await page.getByRole("button", { name: "처음부터", exact: true }).click();
@@ -209,6 +225,10 @@ test("근거 보기는 모달로 열리고 아래 화면이 밀리지 않는다"
   const tabBox = await page.getByRole("tab", { name: "마음결" }).boundingBox();
   expect(tabBox!.y).toBeGreaterThanOrEqual(dBox!.y);
   await expect(page.getByRole("heading", { name: "마음결은 무엇인가요" })).toBeVisible();
+  // 세 번째 탭 [분석 방법]: 결과 화면에 있던 "어떻게 만들었나요?"가 여기로 왔다(D70)
+  await page.getByRole("tab", { name: "분석 방법" }).click();
+  await expect(page.getByRole("heading", { name: "어떻게 분석하나요" })).toBeVisible();
+  await expect(page.getByText(/네 문항의 평균/)).toBeVisible();
   await page.getByRole("tab", { name: "만든 사람" }).click();
   await expect(page.getByText("공군 대위 김성준")).toBeVisible();
   await expect(page.getByText(/SIL 오픈 폰트/)).toBeVisible();
@@ -257,7 +277,7 @@ test("배경음 버튼은 모든 화면 맨 위 줄 오른쪽 끝에 있고, 오
   await toggle.click();
   await expect(page.getByRole("button", { name: /배경음/ })).not.toHaveAttribute("aria-pressed", before ?? "");
   const today = new Date();
-  await expect(page.locator(".hand-date:visible")).toHaveText(`${today.getFullYear()}. ${today.getMonth() + 1}. ${today.getDate()}`);
+  await expect(page.locator(".hand-date:not(.hand-no):visible")).toHaveText(`${today.getFullYear()}. ${today.getMonth() + 1}. ${today.getDate()}`);
   // "?" 버튼은 메인 화면에만 있다.
   await expect(page.getByRole("button", { name: "마음결에 대해" })).toBeVisible();
   await page.getByRole("button", { name: "시작하기" }).click();

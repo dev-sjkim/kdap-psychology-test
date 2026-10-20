@@ -1,0 +1,32 @@
+# Supabase 무료 프로젝트는 한 주 동안 DB 요청이 없으면 일시 정지될 수 있다(D71).
+# 하루 한 번 카운터 한 줄을 읽어 "활동"을 남긴다. 앱 코드와 서버 라우트는 건드리지 않는다.
+# 저장소 Settings → Secrets and variables → Actions 에 NEXT_PUBLIC_SUPABASE_URL, NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY 를 넣어야 돈다(deploy.md 6절).
+# 주의: 공개 저장소는 60일 동안 커밋이 없으면 예약 실행이 자동으로 꺼진다. 꺼지면 Actions 탭에서 다시 켠다.
+name: Supabase 휴면 방지
+
+on:
+  schedule:
+    - cron: "17 21 * * *" # 매일 06:17 KST
+  workflow_dispatch:
+
+permissions: {}
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    timeout-minutes: 2
+    steps:
+      - name: 카운터 한 번 읽기
+        env:
+          NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
+          NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY }}
+        run: |
+          if [ -z "$NEXT_PUBLIC_SUPABASE_URL" ] || [ -z "$NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY" ]; then
+            echo "NEXT_PUBLIC_SUPABASE_URL, NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY secrets가 없어요."; exit 1
+          fi
+          code=$(curl -sS -o body.json -w "%{http_code}" \
+            "$NEXT_PUBLIC_SUPABASE_URL/rest/v1/completion_counter?select=total&id=eq.1" \
+            -H "apikey: $NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY" \
+            -H "Authorization: Bearer $NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY")
+          echo "HTTP $code"; cat body.json; echo
+          [ "$code" = "200" ]

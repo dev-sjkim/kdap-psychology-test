@@ -45,8 +45,8 @@ describe("traitValueLink (기질 × 1순위 가치)", () => {
   const low = (trait: (typeof TRAIT_ORDER)[number]) => ({ trait, mean: 1.5, ratio: 0.125, band: "low" as const, lean: "", strong: true });
 
   it("같은 방향이면 맞물린다고, 다른 방향이면 과제라고 말한다", () => {
-    expect(traitValueLink([high("agreeableness")], "benevolence")).toBe("다른 사람 마음을 먼저 살피는 편이고, 1순위로 배려를 남겼어요. 기질과 가치가 같은 쪽을 보고 있어요.");
-    expect(traitValueLink([low("openness")], "stimulation")).toMatch(/^현실적이고 실용적인 편인데, 1순위로 새로움을 남겼어요\. .*요즘의 과제일 수 있어요\.$/);
+    expect(traitValueLink([high("agreeableness")], "benevolence")).toBe("다른 사람 마음을 먼저 살피는 편이고, 1순위로 배려를 남겼어요. 성격과 가치가 같은 쪽을 보고 있어요.");
+    expect(traitValueLink([low("openness")], "stimulation")).toMatch(/^현실적이고 실용적인 편인데, 1순위로 새로움을 남겼어요\. .*애쓰는 때가 있을 거예요\.$/);
   });
 
   it("중간이거나 짝이 없는 가치(즐거움)면 null", () => {
@@ -65,9 +65,9 @@ describe("analyze", () => {
   });
 
   it("첫 패턴(headline)은 기질 × 1순위 가치 연결이고, 비움 단어가 남긴 가치와 이어진다", () => {
-    expect(a.headline).toBe("다른 사람 마음을 먼저 살피는 편이고, 1순위로 배려를 남겼어요. 기질과 가치가 같은 쪽을 보고 있어요.");
-    expect(a.patterns).toContain("끝까지 남긴 세 단어 중 2개가 같은 가치(영향력)예요. 이 가치가 특히 크게 자리 잡고 있을 수 있어요.");
-    expect(a.patterns).toContain("'혼자 다 떠안기'를 덜어 내고 싶다고 했는데, 그 자리에 들어설 가치(배려)는 이미 끝까지 남긴 가치예요. 지키고 싶은 것을 지금 무엇이 가리고 있는지 보여 줘요.");
+    expect(a.headline).toBe("다른 사람 마음을 먼저 살피는 편이고, 1순위로 배려를 남겼어요. 성격과 가치가 같은 쪽을 보고 있어요.");
+    expect(a.patterns).toContain("끝까지 남긴 세 단어 중 2개가 영향력 쪽 단어예요. 지금 가장 크게 자리 잡은 가치예요.");
+    expect(a.patterns).toContain("'혼자 다 떠안기'를 내려놓고 싶다고 했는데, 그 자리에 들어설 배려는 끝까지 남긴 가치이기도 해요. 지키고 싶은 걸 지금 이게 가리고 있는 셈이에요.");
     expect(a.patterns.length).toBeLessThanOrEqual(5);
     expect(a.release).toEqual([{ word: "혼자 다 떠안기", valueId: "benevolence" }]);
   });
@@ -75,7 +75,7 @@ describe("analyze", () => {
   it("비움 단어가 키우고 싶은 힘과 같은 방향이면 그렇게 짚는다", () => {
     const kept = [{ rank: 1, wordId: "v_care", word: "배려", valueId: "benevolence" as const }];
     const out = findPatterns([], kept, [], [{ word: "뻔해진 하루", valueId: "stimulation" }], ["stimulation"]);
-    expect(out[0]).toBe("'뻔해진 하루'를 덜어 내면 자리가 생기는 가치(새로움)를 더 키우고 싶은 힘으로도 골랐어요. 비우는 것과 키우는 것이 같은 방향이에요.");
+    expect(out[0]).toBe("'뻔해진 하루'를 내려놓으면 자리가 생기는 새로움을 키우고 싶은 힘으로도 골랐어요. 비우려는 것과 키우려는 것이 같은 방향이에요.");
   });
 
   it("가치 순서: 남긴 순위가 앞서고, 같은 점수면 더 높은 순위로 남긴 가치가 먼저다", () => {

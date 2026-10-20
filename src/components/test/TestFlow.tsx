@@ -87,12 +87,15 @@ export function TestFlow({ stepId }: { stepId: StepId }) {
   if (step.kind === "likert") {
     return (
       <Notebook band={<ProgressBand fills={fills} current={index} />}>
-        <div className="enter" key={`likert-${state.likertIndex}`}>
-          <LikertQuestion
-            index={state.likertIndex}
-            onHome={() => router.push("/")}
-            onDone={() => router.push(stepPath(STEPS[1].id))}
-          />
+        {/* 장은 위에서 아래로 한 번 적히고(enter-page), 문항은 제자리에서 잉크만 바뀐다(enter)(D65) */}
+        <div className="enter-page">
+          <div className="enter" key={`likert-${state.likertIndex}`}>
+            <LikertQuestion
+              index={state.likertIndex}
+              onHome={() => router.push("/")}
+              onDone={() => router.push(stepPath(STEPS[1].id))}
+            />
+          </div>
         </div>
       </Notebook>
     );
@@ -101,7 +104,7 @@ export function TestFlow({ stepId }: { stepId: StepId }) {
   const band = <ProgressBand fills={fills} current={index} onBack={() => router.push(stepPath(STEPS[index - 1].id))} backLabel="이전 단계로" />;
   return (
     <Notebook band={band} foot={<StepFoot key={step.id} step={step} />}>
-      <div className="enter" key={step.id}>
+      <div className="enter-page" key={step.id}>
         <WordStep step={step} />
       </div>
     </Notebook>

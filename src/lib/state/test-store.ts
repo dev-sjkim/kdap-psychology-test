@@ -13,7 +13,7 @@ import { recordCompletion } from "@/lib/stats/supabase";
 import { STEPS, stepById, type StepId } from "@/lib/steps";
 
 export interface TestState {
-  v: 4;
+  v: 5;
   started: boolean;
   /** 1단계에서 지금 보고 있는 문항 번호(0부터) */
   likertIndex: number;
@@ -23,13 +23,15 @@ export interface TestState {
   /** 단계마다 사람마다 섞은 단어 순서 */
   order: Record<PickStepId, string[]>;
   analysis: Analysis | null;
+  /** 이 결과의 일련번호 = 올린 뒤의 전체 검사 횟수(D67). 못 올렸으면 null */
+  completionNo: number | null;
 }
 
-const STORAGE_KEY = `${STORAGE_PREFIX}:test:v4`;
+const STORAGE_KEY = `${STORAGE_PREFIX}:test:v5`;
 
 function emptyState(): TestState {
   return {
-    v: 4,
+    v: 5,
     started: false,
     likertIndex: 0,
     answers: {},
@@ -37,6 +39,7 @@ function emptyState(): TestState {
     logs: Object.fromEntries(STEPS.map((s): [StepId, StepLog] => [s.id, { toggles: 0, durationMs: 0, removed: [] }])) as Record<StepId, StepLog>,
     order: { values: VALUE_WORDS.map((w) => w.id), narrow: [], now: NOW_WORDS.map((w) => w.id), release: RELEASE_WORDS.map((w) => w.id), grow: [...VALUE_IDS] },
     analysis: null,
+    completionNo: null,
   };
 }
 
@@ -48,7 +51,7 @@ function load(): TestState {
     const raw = window.sessionStorage.getItem(STORAGE_KEY);
     if (!raw) return emptyState();
     const data = JSON.parse(raw) as TestState;
-    return data.v === 4 && data.picks?.release && data.order?.release && data.answers ? data : emptyState();
+    return data.v === 5 && data.picks?.release && data.order?.release && data.answers ? data : emptyState();
   } catch {
     return emptyState();
   }
@@ -172,9 +175,11 @@ export const testStore = {
 
   finish(now = new Date()): Analysis {
     const analysis = analyze({ answers: state.answers, picks: state.picks, logs: state.logs, takenOn: localDate(now) });
-    set({ ...state, analysis });
-    // 전체 검사 횟수만 1 올린다(D61). 응답은 보내지 않는다.
-    void recordCompletion();
+    set({ ...state, analysis, completionNo: null });
+    // 전체 검사 횟수만 1 올린다(D61). 응답은 보내지 않는다. 돌아온 번호는 결과 화면 No. 칸에 적는다(D67).
+    void recordCompletion().then((no) => {
+      if (no !== null && state.analysis === analysis) set({ ...state, completionNo: no });
+    });
     return analysis;
   },
 };

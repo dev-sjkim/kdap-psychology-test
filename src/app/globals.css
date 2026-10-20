@@ -57,9 +57,11 @@ button {
 }
 
 /* ── 움직임 ─────────────────────────────── */
-@keyframes page-in {
-  from { opacity: 0; transform: translateY(10px); }
-  to { opacity: 1; transform: none; }
+/* 장을 넘길 때: 글이 위에서부터 적힌다. 끝나면 clip이 풀려야 하므로 fill-mode는 backwards로 쓴다 */
+@keyframes page-write {
+  from { opacity: 0; clip-path: inset(0 0 100% 0); }
+  60% { opacity: 1; }
+  to { opacity: 1; clip-path: inset(0 0 0 0); }
 }
 @keyframes fade-in {
   from { opacity: 0; }
@@ -73,25 +75,31 @@ button {
   25% { transform: translateX(-4px); }
   75% { transform: translateX(4px); }
 }
-@keyframes pop {
-  0% { transform: scale(0.4); opacity: 0; }
-  70% { transform: scale(1.15); opacity: 1; }
-  100% { transform: scale(1); }
+/* 순위 배지: 도장 찍듯 살짝 크게 내려앉는다(바운스 없음) */
+@keyframes stamp {
+  from { transform: scale(1.12); opacity: 0; }
+  to { transform: none; opacity: 1; }
 }
 @keyframes settle {
   from { opacity: 0; transform: translateY(18px) rotate(-3deg); }
   to { opacity: 1; transform: rotate(-0.7deg); }
 }
-@keyframes scale-in {
-  from { opacity: 0; transform: translateY(8px) scale(0.97); }
+/* 모달: 책상 위에 종이 한 장을 더 올려놓듯 살짝 기운 채 내려앉는다 */
+@keyframes slip-on {
+  from { opacity: 0; transform: translateY(6px) rotate(-0.8deg); }
   to { opacity: 1; transform: none; }
 }
 @keyframes pencil-write {
   from { stroke-dashoffset: 260; }
   to { stroke-dashoffset: 0; }
 }
+/* 제자리에서 잉크만 스민다: 문항, 복사 뒤 패널, 탭 패널, 손글씨 번호 */
 .enter {
-  animation: page-in 0.36s var(--ease-out) both;
+  animation: fade-in 0.22s var(--ease-out) both;
+}
+/* 장이 바뀔 때: 위에서 아래로 적힌다 */
+.enter-page {
+  animation: page-write 0.45s var(--ease-out) backwards;
 }
 
 /* ── 노트 한 장 ─────────────────────────────── */
@@ -144,12 +152,12 @@ button {
   color: var(--muted);
   letter-spacing: 0.04em;
 }
-.band-fields .blank {
-  display: inline-block;
-  width: 44px;
-  border-bottom: 1px solid var(--rule-strong);
-  margin-left: 4px;
-  transform: translateY(2px);
+.field .hand-no {
+  min-width: 44px;
+  text-align: center;
+}
+.hand-no:empty::before {
+  content: "\00a0";
 }
 
 /* 진행도 */
@@ -330,7 +338,7 @@ button {
 
 /* ── 시작 ─────────────────────────────── */
 .wordmark {
-  margin: 0;
+  margin: 23px 0 5px;
   font-family: var(--font-display-stack);
   font-weight: 700;
   font-size: 44px;
@@ -394,7 +402,7 @@ button {
   display: none;
 }
 .disclosure[open] > :not(summary) {
-  animation: page-in 0.3s var(--ease-out) both;
+  animation: fade-in 0.25s var(--ease-out) both;
 }
 .disclosure-body {
   margin-top: 6px;
@@ -519,7 +527,7 @@ button {
   font-size: 13px;
   line-height: 22px;
   text-align: center;
-  animation: pop 0.32s var(--ease-out) both;
+  animation: stamp 0.18s var(--ease-out) both;
 }
 .cards {
   margin-top: 8px;
@@ -578,25 +586,19 @@ button {
   align-items: flex-end;
   padding-bottom: 12px;
 }
-.band-result .brand {
-  font-family: var(--font-display-stack);
-  font-weight: 700;
-  font-size: 18px;
-  line-height: 1;
-  color: var(--ink);
-  text-decoration: none;
-}
 .band-result .date {
   font-size: 12px;
   color: var(--muted);
   letter-spacing: 0.02em;
 }
 .thinking {
+  position: fixed;
+  inset: 0;
   display: grid;
   place-items: center;
   align-content: center;
   gap: 12px;
-  min-height: 60dvh;
+  pointer-events: none;
   text-align: center;
   font-size: 15px;
   color: var(--muted);
@@ -718,7 +720,7 @@ button {
   text-underline-offset: 3px;
 }
 .details {
-  animation: page-in 0.35s var(--ease-out) both;
+  animation: fade-in 0.3s var(--ease-out) both;
 }
 .sec {
   margin: 0;
@@ -764,9 +766,12 @@ button {
 }
 
 /* AI에게 해석 받기: 복사와 AI 열기를 한자리에서 */
+/* 복사 뒤 안내는 큰 버튼(52px)과 같은 높이 안에 두 줄로 들어간다. 바닥 높이가 변하지 않아 결과 화면이 스크롤되지 않는다(D71) */
 .ask {
   display: grid;
-  gap: 8px;
+  gap: 2px;
+  min-height: 52px;
+  align-content: center;
 }
 .ask-panel {
   display: grid;
@@ -785,31 +790,6 @@ button {
   font-size: 14px;
   line-height: 21px;
   text-align: center;
-}
-.ai-links {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 8px;
-}
-.ai-links.two {
-  grid-template-columns: repeat(2, 1fr);
-}
-.ai-links a {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  height: 46px;
-  border: 1.5px solid var(--accent);
-  border-radius: 2px;
-  color: var(--accent);
-  font-size: 15px;
-  font-weight: 700;
-  text-decoration: none;
-  background: var(--slip);
-  transition: transform 0.12s;
-}
-.ai-links a:active {
-  transform: scale(0.97);
 }
 .fallback-text {
   width: 100%;
@@ -852,7 +832,7 @@ button {
   padding: 20px;
   display: grid;
   gap: 12px;
-  animation: scale-in 0.28s var(--ease-out) both;
+  animation: slip-on 0.26s var(--ease-out) both;
 }
 .modal h2 {
   margin: 0;
@@ -1093,10 +1073,6 @@ button {
   color: var(--ink);
   font-size: 12px;
 }
-.ai-links a {
-  height: 50px;
-  font-size: 16px;
-}
 
 
 /* ── 바닥 버튼 두 개: [이전] [다음] ─────────────────────────────── */
@@ -1167,10 +1143,6 @@ button {
   .restart:hover:not(.armed) {
     border-color: var(--muted);
     color: var(--ink);
-  }
-  .ai-links a:hover {
-    background: var(--accent);
-    color: var(--on-accent);
   }
   .icon-btn:hover {
     background: var(--rule);
@@ -1243,6 +1215,7 @@ button {
 /* ── 배경음 버튼: 왼쪽 여백 칸, 맨 위 줄 바로 아래(D42) ─────────────────────────────── */
 /* 배경음 버튼: 모든 화면 맨 위 줄 오른쪽 끝(D63) */
 .sound-top {
+  flex-shrink: 0; /* 머리줄이 좁아져도 동그라미가 찌그러지지 않게 */
   flex: none;
   width: 28px;
   height: 28px;
@@ -1537,6 +1510,7 @@ body {
   gap: 10px;
 }
 .about-btn {
+  flex-shrink: 0; /* 머리줄이 좁아져도 동그라미가 찌그러지지 않게 */
   width: 26px;
   height: 26px;
   display: grid;
@@ -1751,6 +1725,15 @@ body {
 .details-toggle.open svg {
   transform: rotate(180deg);
 }
+.foot .details-toggle.fold {
+  margin: 0 auto;
+  justify-self: center;
+  height: 32px;
+  font-size: 13px;
+}
+#result-details {
+  scroll-margin-top: 12px;
+}
 .details-wrap {
   display: grid;
   grid-template-rows: 0fr;
@@ -1763,12 +1746,6 @@ body {
   overflow: hidden;
 }
 
-/* ── 메인 카운터(D61): 안내문 끝에 이어지는 문장 ─────────────────────────────── */
-.count-inline b {
-  font-weight: 600;
-  color: var(--ink);
-}
-
 @media (hover: hover) and (pointer: fine) {
   .restart-sq:hover,
   .details-toggle:hover {
@@ -1777,3 +1754,62 @@ body {
   }
 }
 
+
+/* ── PC 책상 면(D69): 노트 바깥에 옅은 점 격자와 소품 낙서. 980px보다 좁으면 없다 ─────────────────────────────── */
+.desk-decor {
+  display: none;
+}
+@media (min-width: 980px) {
+  body {
+    background-image: radial-gradient(circle, color-mix(in srgb, var(--rule-strong) 42%, transparent) 1px, transparent 1.4px);
+    background-size: 22px 22px;
+  }
+  .desk-decor {
+    display: block;
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 0;
+  }
+  .doodle {
+    position: absolute;
+    /* 눈에 띄지 않게: 책상 위에 희미하게 있는 정도(사용자 요청, D69) */
+    opacity: 0.26;
+  }
+  .doodle .stroke {
+    fill: none;
+    stroke: var(--muted);
+    stroke-width: 1.6;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    stroke-dasharray: 700;
+    stroke-dashoffset: 700;
+    animation: draw 1.6s var(--ease-out) forwards;
+  }
+  .doodle .dashed {
+    stroke-dasharray: 18 9;
+    stroke-dashoffset: 0;
+    animation: fade-in 1.2s 0.6s both;
+  }
+  .doodle .s2 { animation-delay: 0.3s; }
+  .doodle .s3 { animation-delay: 0.6s; }
+  .doodle .s4 { animation-delay: 0.9s; }
+  .doodle-pencil {
+    left: calc(50% - 240px - 250px);
+    bottom: 14vh;
+    transform: rotate(-12deg);
+  }
+  .doodle-clip {
+    left: calc(50% - 240px - 150px);
+    top: 16vh;
+    transform: rotate(22deg);
+  }
+  .doodle-ring {
+    right: calc(50% - 240px - 210px);
+    top: 10vh;
+  }
+  .notebook {
+    position: relative;
+    z-index: 1;
+  }
+}

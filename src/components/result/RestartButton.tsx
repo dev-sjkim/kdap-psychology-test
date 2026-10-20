@@ -44,7 +44,7 @@ export function RestartButton() {
               <p>지금 결과는 저장되지 않아요. 아직 복사하지 않았다면 먼저 [AI에게 해석 받기]로 복사해 두세요.</p>
               <div className="modal-actions">
                 <button type="button" className="btn btn-quiet" onClick={() => setOpen(false)}>
-                  남아 있기
+                  계속 보기
                 </button>
                 <button type="button" className="btn" onClick={restart}>
                   처음부터

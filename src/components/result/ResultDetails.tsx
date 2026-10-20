@@ -1,10 +1,8 @@
 // [자세히 보기]를 누르면 펼치는 상세 정보. 문장은 데이터 파일과 규칙에서만 만든다.
 
-import { REFERENCES } from "@/data/references";
 import { VALUES } from "@/data/values";
 import { TRAITS } from "@/data/words";
 import type { Analysis } from "@/lib/analysis/analyze";
-import { LIMITATIONS } from "@/lib/prompt/prompt-data";
 import { stepById } from "@/lib/steps";
 import { formatSeconds } from "@/lib/text/format";
 
@@ -75,31 +73,6 @@ export function ResultDetails({ analysis: a }: { analysis: Analysis }) {
         ))}
       </ul>
 
-      <details className="disclosure" style={{ marginTop: 16, fontSize: 14 }}>
-        <summary>어떻게 만들었나요?</summary>
-        <div className="disclosure-body">
-          <ul>
-            {LIMITATIONS.map((l) => (
-              <li key={l}>{l}</li>
-            ))}
-            <li>성격은 특성마다 두 문항(한쪽은 반대로 읽음)의 평균으로 어느 쪽에 기울었는지만 봐요.</li>
-            <li>가치는 끝까지 남긴 순서를 가장 크게 보고, 1순위로 남긴 가치를 결과 카드 그림으로 보여 줘요.</li>
-          </ul>
-          <p>참고한 연구</p>
-          <ul>
-            {REFERENCES.map((r) => (
-              <li key={r.id}>
-                {r.citation}{" "}
-                {r.doi && (
-                  <a href={`https://doi.org/${r.doi}`} target="_blank" rel="noreferrer">
-                    doi:{r.doi}
-                  </a>
-                )}
-              </li>
-            ))}
-          </ul>
-        </div>
-      </details>
     </div>
   );
 }
