@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 import { analyze } from "@/lib/analysis/analyze";
 import { sampleInput } from "@/lib/analysis/fixtures";
 import { josa } from "@/lib/text/josa";
-import { PROMPT_RULES, PROMPT_SECTIONS, buildCopyPrompt } from "./build-copy-prompt";
+import { ABOUT_TEST, PROMPT_INTRO, PROMPT_RULES, PROMPT_SECTIONS, buildCopyPrompt } from "./build-copy-prompt";
 import { promptDataSchema } from "./prompt-data";
 
 const analysis = analyze(sampleInput());
@@ -49,6 +49,17 @@ describe("해석 프롬프트", () => {
     expect(rules).toContain("처음부터 끝까지 존댓말");
     expect(rules).toContain("덧붙이지 말아 주세요");
     expect(PROMPT_SECTIONS[0].ask).toContain("추측 표현을 붙이지 말아");
+  });
+
+  it("어색한 문체를 막는 규칙을 담고, 지시문 스스로도 그 문체를 쓰지 않는다(D74)", () => {
+    const rules = PROMPT_RULES.join(" ");
+    expect(rules).toContain("'당신'이라고 부르지 말고");
+    expect(rules).toContain("되읽지 말고");
+    expect(rules).toContain("맞세우기 문장은 한 번까지만");
+    expect(rules).toContain("데이터를 보며 평하는 말");
+    // 모델은 지시문의 말투를 따라 한다. 규칙 문장 밖에서는 대구·감성 명사·괄호 보충을 쓰지 않는다
+    const instructions = [PROMPT_INTRO, ...ABOUT_TEST, ...PROMPT_SECTIONS.map((s) => `${s.title} ${s.ask}`)].join("\n");
+    expect(instructions).not.toMatch(/당신|아니라|(?<![가-힣])결[이을(]|[가-힣]\(/);
   });
 
   it("짧다: 4,500자 이하이고 문항·단어 id나 밀리초 기록이 없다", () => {

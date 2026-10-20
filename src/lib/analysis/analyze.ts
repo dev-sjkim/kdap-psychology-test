@@ -194,7 +194,13 @@ export function findPatterns(
 
   const backAgain = letGo.filter((l) => grow.includes(l.valueId));
   if (backAgain.length > 0) {
-    out.push(`마지막에 내려놓은 '${backAgain[0].word}'와 같은 쪽인 ${josa(label(backAgain[0].valueId), "을/를")} 키우고 싶은 힘으로 다시 골랐어요.`);
+    const { word, valueId } = backAgain[0];
+    // 단어와 가치 이름이 같으면("영향력") 한 번만 쓴다
+    out.push(
+      word === label(valueId)
+        ? `마지막에 내려놓은 ${josa(`'${word}'`, "을/를")} 키우고 싶은 힘으로 다시 골랐어요.`
+        : `마지막에 내려놓은 ${josa(`'${word}'`, "와/과")} 같은 쪽인 ${josa(label(valueId), "을/를")} 키우고 싶은 힘으로 다시 골랐어요.`,
+    );
   }
   return out.slice(0, 5);
 }

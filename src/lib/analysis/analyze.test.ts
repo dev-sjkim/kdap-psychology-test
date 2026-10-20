@@ -78,6 +78,14 @@ describe("analyze", () => {
     expect(out[0]).toBe("'뻔해진 하루'를 내려놓으면 자리가 생기는 새로움을 키우고 싶은 힘으로도 골랐어요. 비우려는 것과 키우려는 것이 같은 방향이에요.");
   });
 
+  it("내려놓은 단어의 가치를 다시 키우고 싶다고 고르면 받침에 맞는 조사로 짚고, 단어와 가치 이름이 같으면 한 번만 쓴다", () => {
+    const kept = [{ rank: 1, wordId: "v_drive", word: "추진력", valueId: "power" as const }];
+    const viaWord = findPatterns([], kept, [{ word: "모험", valueId: "stimulation" }], [], ["stimulation"]);
+    expect(viaWord.at(-1)).toBe("마지막에 내려놓은 '모험'과 같은 쪽인 새로움을 키우고 싶은 힘으로 다시 골랐어요.");
+    const sameName = findPatterns([], kept, [{ word: "영향력", valueId: "power" }], [], ["power"]);
+    expect(sameName.at(-1)).toBe("마지막에 내려놓은 '영향력'을 키우고 싶은 힘으로 다시 골랐어요.");
+  });
+
   it("가치 순서: 남긴 순위가 앞서고, 같은 점수면 더 높은 순위로 남긴 가치가 먼저다", () => {
     expect(valueOrder(["v_autonomy", "v_adventure", "v_thrill", "v_care", "v_nature"], ["v_autonomy", "v_adventure", "v_thrill"])).toEqual([
       "self_direction",
