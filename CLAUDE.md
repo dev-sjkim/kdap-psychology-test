@@ -49,7 +49,7 @@ public/audio/          bgm-loop.mp3(배경음, 80초 반복)
     HandLoop.tsx       손그림 동그라미(선택 표시, 그려지는 움직임)
     test/              TestFlow(단계 순서 · 바닥 버튼) · LikertQuestion(1단계 5지선다) · WordStep(단어 칩 · 가치 카드 고르기)
     result/            ResultScreen · ResultCard(프로필) · ProfileRadar(오각형) · Motif(그림 10종) · ResultDetails · AskAi(복사 → AI 버튼) · RestartButton
-    start/             StartActions(늘 새로 시작) · BasisDialog("?" → 이 테스트에 대해 모달)
+    start/             StartActions(늘 새로 시작) · BasisDialog("?" → 마음결에 대해 탭 모달)
   data/                credits(만든 사람 · 크레딧) · likert(성격 20문항) · words(특성 문장 · 가치 40 · 기분 12 · 비움 12) · values(10가치) · result-cards(그림 소재) · references
   lib/
     steps.ts           다섯 단계 정의(제목 · 안내 · 최소/최대 개수)

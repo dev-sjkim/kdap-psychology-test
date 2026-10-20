@@ -193,17 +193,24 @@ test("근거 보기는 모달로 열리고 아래 화면이 밀리지 않는다"
   await page.goto("/");
   const startBtn = page.getByRole("button", { name: "시작하기" });
   const before = await startBtn.boundingBox();
-  await page.getByRole("button", { name: "이 테스트에 대해" }).click();
+  await page.getByRole("button", { name: "마음결에 대해" }).click();
   await expect(page.getByRole("dialog")).toBeVisible();
-  // 탭: 이 테스트 / 만든 사람. 라이선스는 눌러야 펼쳐진다.
+  // 탭: 마음결 / 만든 사람. 탭과 내용이 모달 안에 들어온다. 크레딧은 각주로 늘 보인다.
+  const dialog = page.getByRole("dialog");
+  const dBox = await dialog.boundingBox();
+  const tabBox = await page.getByRole("tab", { name: "마음결" }).boundingBox();
+  expect(tabBox!.y).toBeGreaterThanOrEqual(dBox!.y);
+  await expect(page.getByRole("heading", { name: "마음결은 무엇인가요" })).toBeVisible();
   await page.getByRole("tab", { name: "만든 사람" }).click();
   await expect(page.getByText("공군 대위 김성준")).toBeVisible();
-  await expect(page.getByText(/SIL 오픈 폰트/)).toHaveCount(0);
-  await page.getByRole("button", { name: "라이선스 보기" }).click();
   await expect(page.getByText(/SIL 오픈 폰트/)).toBeVisible();
+  const vp = page.viewportSize()!;
+  const mBox = await dialog.boundingBox();
+  expect(mBox!.y).toBeGreaterThanOrEqual(0);
+  expect(mBox!.y + mBox!.height).toBeLessThanOrEqual(vp.height);
   await page.waitForTimeout(300);
   await shot(page, "12-maker-tab");
-  await page.getByRole("tab", { name: "이 테스트" }).click();
+  await page.getByRole("tab", { name: "마음결" }).click();
   await expectNoScroll(page, "근거 모달을 연 시작 화면");
   expect(await startBtn.boundingBox()).toEqual(before);
   await page.waitForTimeout(400);
@@ -246,10 +253,10 @@ test("배경음 버튼은 오른쪽 아래에 떠 있고 바닥 버튼과 겹치
   const today = new Date();
   await expect(page.locator(".hand-date:visible")).toHaveText(`${today.getFullYear()}. ${today.getMonth() + 1}. ${today.getDate()}`);
   // "?" 버튼은 메인 화면에만 있다.
-  await expect(page.getByRole("button", { name: "이 테스트에 대해" })).toBeVisible();
+  await expect(page.getByRole("button", { name: "마음결에 대해" })).toBeVisible();
   await page.getByRole("button", { name: "시작하기" }).click();
   await expect(page.locator("button[aria-label*='배경음']:visible")).toBeVisible();
-  await expect(page.getByRole("button", { name: "이 테스트에 대해" })).toHaveCount(0);
+  await expect(page.getByRole("button", { name: "마음결에 대해" })).toHaveCount(0);
 });
 
 test("글자는 드래그로 선택되지 않고, 결과의 프롬프트 상자만 선택할 수 있다", async ({ page }) => {
