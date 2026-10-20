@@ -1,6 +1,6 @@
-// 다섯 단계. 1단계는 5지선다 문항(한 화면에 한 문항), 2~5단계는 여러 개를 고르는 화면 한 장이다(D28).
+// 여섯 단계. 1단계는 5지선다 문항(한 화면에 한 문항), 2~6단계는 여러 개를 고르는 화면 한 장이다(D28, D57).
 
-export type StepId = "personality" | "values" | "narrow" | "now" | "grow";
+export type StepId = "personality" | "values" | "narrow" | "now" | "release" | "grow";
 
 export interface StepDef {
   id: StepId;
@@ -26,9 +26,9 @@ export const STEPS: StepDef[] = [
     id: "values",
     kind: "pick",
     title: "마음이 끌리는 단어",
-    prompt: "요즘 마음이 끌리는 단어를 5개 골라 주세요.",
-    min: 5,
-    max: 5,
+    prompt: "요즘 마음이 끌리는 단어를 7개 골라 주세요.",
+    min: 7,
+    max: 7,
   },
   {
     id: "narrow",
@@ -46,6 +46,14 @@ export const STEPS: StepDef[] = [
     prompt: "요즘 내 마음과 가까운 걸 1~3개 골라 주세요.",
     min: 1,
     max: 3,
+  },
+  {
+    id: "release",
+    kind: "pick",
+    title: "비워 내고 싶은 것",
+    prompt: "요즘 나를 많이 쓰게 하는 것 중에서, 조금 덜어 내고 싶은 걸 1~2개 골라 주세요.",
+    min: 1,
+    max: 2,
   },
   {
     id: "grow",

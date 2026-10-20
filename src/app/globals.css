@@ -993,6 +993,31 @@ button {
   text-align: center;
   font-size: 15px;
 }
+/* 40개는 4열 × 10줄. 칩을 낮추고 간격을 줄여 360×740 한 화면에 들어가게 한다(D58) */
+.chips-values {
+  gap: 6px;
+}
+.chips-values .chip {
+  min-height: 34px;
+  padding: 5px 2px;
+  font-size: 14px;
+  line-height: 22px;
+}
+.chips-values .chip .loop {
+  inset: -4px -6px;
+  width: calc(100% + 12px);
+  height: calc(100% + 8px);
+}
+.chips-release {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+}
+.chips-release .chip {
+  padding: 9px 6px;
+  text-align: center;
+  font-size: 14px;
+}
 .cards .vcard {
   min-height: 60px;
   padding: 8px 10px;
@@ -1492,8 +1517,9 @@ body {
 .home .toc {
   margin-top: var(--line);
 }
+/* 목차가 여섯 줄이 되어(D57) 소개 문단 위 여백은 한 줄로 둔다. 안내문 사이는 그대로 한 줄 띈다 */
 .home .para {
-  margin-top: calc(var(--line) * 2);
+  margin-top: var(--line);
 }
 .home .para-small {
   margin-top: var(--line);
@@ -1562,3 +1588,116 @@ body {
     border-color: var(--muted);
   }
 }
+
+/* ── 카드 아래 한 줄 통찰(D55) ─────────────────────────────── */
+.headline {
+  position: relative;
+  margin: 12px 0 0;
+  padding: 0 0 0 14px;
+  font-size: 14px;
+  line-height: 22px;
+  border-left: 3px solid var(--accent);
+  text-wrap: pretty;
+}
+
+/* ── "이 테스트에 대해" 모달: 노트 인덱스 탭(D56) ─────────────────────────────── */
+.modal.tabbed {
+  padding-top: 0;
+  overflow: visible;
+}
+.index-tabs {
+  display: flex;
+  gap: 4px;
+  margin: 0 -1px;
+  transform: translateY(-1px);
+}
+.index-tabs [role="tab"] {
+  flex: 1;
+  height: 40px;
+  border: 1px solid var(--rule-strong);
+  border-bottom: 0;
+  border-radius: 2px 2px 0 0;
+  background: var(--rule);
+  color: var(--muted);
+  font-size: 14px;
+  font-weight: 600;
+  transform: translateY(6px);
+  transition: transform 0.2s var(--ease-out), background-color 0.2s, color 0.2s;
+}
+.index-tabs [role="tab"].on {
+  background: var(--paper);
+  color: var(--ink);
+  transform: none;
+  position: relative;
+  z-index: 1;
+}
+.index-tabs [role="tab"].on::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -2px;
+  height: 3px;
+  background: var(--paper);
+}
+.modal.tabbed .tab-panel {
+  display: grid;
+  gap: 12px;
+  padding-top: 4px;
+  border-top: 1px solid var(--rule-strong);
+  margin-top: -1px;
+  padding-top: 14px;
+}
+.maker-card {
+  background:
+    repeating-linear-gradient(to bottom, transparent 0, transparent 27px, var(--rule) 27px, var(--rule) 28px),
+    var(--slip);
+  border: 1px solid var(--slip-edge);
+  padding: 14px 16px 16px !important;
+  margin-top: 8px;
+}
+.maker-kicker {
+  font-size: 12px;
+  color: var(--muted);
+  letter-spacing: 0.04em;
+}
+.maker-name {
+  font-family: var(--font-display-stack);
+  font-weight: 700;
+  font-size: 24px !important;
+  line-height: 28px !important;
+}
+.maker-bio {
+  font-size: 15px;
+  line-height: 24px;
+}
+.maker-contact {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  font-size: 14px;
+}
+.maker-contact .field-label {
+  font-size: 12px;
+  color: var(--muted);
+  letter-spacing: 0.04em;
+}
+.maker-contact a {
+  color: var(--ink);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  font-family: var(--font-pen), cursive;
+  font-size: 20px;
+  line-height: 20px;
+}
+.license-toggle {
+  justify-self: start;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--muted);
+  font-size: 12px;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+

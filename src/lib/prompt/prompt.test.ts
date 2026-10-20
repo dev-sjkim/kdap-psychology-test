@@ -16,19 +16,26 @@ describe("해석 프롬프트", () => {
     expect([...order].sort((a, b) => a - b)).toEqual(order);
   });
 
-  it("<result> 안의 JSON은 PromptData 스키마를 통과하고, 앱이 찾은 연결을 담는다", () => {
+  it("<result> 안의 JSON은 PromptData 스키마를 통과하고, headline·patterns·release를 담는다", () => {
     const json = JSON.parse(text.match(/\n<result>\n([\s\S]*?)\n<\/result>/)![1]);
     expect(promptDataSchema.safeParse(json).success).toBe(true);
     expect(json.patterns.length).toBeGreaterThan(0);
+    expect(typeof json.headline).toBe("string");
+    expect(json.release).toEqual([{ word: "혼자 다 떠안기", makes_room_for: "배려" }]);
   });
 
-  it("맨 위에 '# 마음결 · 날짜의 나' 제목을 쓰게 하고, 8개 항목을 담는다", () => {
+  it("맨 위에 '# 마음결 · 날짜의 나' 제목을 쓰게 하고, 기질 × 가치 연결 중심의 7개 항목을 담는다(D59)", () => {
     expect(text).toContain("\n# 마음결 · 2026년 10월 20일의 나\n");
-    expect(PROMPT_SECTIONS).toHaveLength(8);
+    expect(PROMPT_SECTIONS).toHaveLength(7);
     PROMPT_SECTIONS.forEach((s, i) => expect(text).toContain(`## ${i + 1}. ${s.title}:`));
-    expect(PROMPT_SECTIONS[6].title).toBe("이번 주 작은 한 걸음");
-    expect(PROMPT_SECTIONS[7].title).toBe("응원 한마디");
-    expect(PROMPT_SECTIONS[3].ask).toContain("힘을 얻는 방식과 지치는 방식");
+    expect(PROMPT_SECTIONS[1].title).toBe("기질이 가치를 만나는 지점");
+    expect(PROMPT_SECTIONS[2].title).toBe("가치 사이의 긴장");
+    expect(PROMPT_SECTIONS[3].title).toBe("비우고 싶은 것과 키우고 싶은 것");
+    expect(PROMPT_SECTIONS[5].title).toBe("이번 주 작은 한 걸음");
+    expect(PROMPT_SECTIONS[6].title).toBe("응원 한마디");
+    // 경쟁 서비스 항목 구성("확신과 열망", "세 장면 속의 나")은 더 쓰지 않는다
+    expect(PROMPT_SECTIONS.map((s) => s.title)).not.toContain("세 장면 속의 나");
+    expect(PROMPT_SECTIONS.map((s) => s.title)).not.toContain("확신과 열망");
   });
 
   it("두서없는 답을 막는 규칙을 담는다", () => {
@@ -37,15 +44,16 @@ describe("해석 프롬프트", () => {
     expect(rules).toContain("영어 키 이름");
     expect(rules).toContain("같은 비유나 표현을 되풀이하지");
     expect(rules).toContain("문단마다 한 번 정도만");
-    expect(rules).toContain("2,000자 안팎");
+    expect(rules).toContain("1,800자 안팎");
+    expect(rules).toContain("서로 다른 데이터를 반드시 이어서");
     expect(rules).toContain("처음부터 끝까지 존댓말");
     expect(rules).toContain("덧붙이지 말아 주세요");
     expect(PROMPT_SECTIONS[0].ask).toContain("추측 표현을 붙이지 말아");
   });
 
-  it("짧다: 4,000자 이하이고 문항·단어 id나 밀리초 기록이 없다", () => {
-    expect(text.length).toBeLessThanOrEqual(4000);
-    expect(text).not.toMatch(/mipip_|v_care|n_busy|durationMs|duration_ms/);
+  it("짧다: 4,500자 이하이고 문항·단어 id나 밀리초 기록이 없다", () => {
+    expect(text.length).toBeLessThanOrEqual(4500);
+    expect(text).not.toMatch(/mipip_|v_care|n_busy|r_carry|durationMs|duration_ms/);
   });
 
   it("조사 병기나 위기 안내 문구가 없다", () => {

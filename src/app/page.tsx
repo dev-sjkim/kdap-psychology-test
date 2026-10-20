@@ -3,7 +3,7 @@ import { BasisDialog } from "@/components/start/BasisDialog";
 import { StartActions } from "@/components/start/StartActions";
 import { STEPS } from "@/lib/steps";
 
-const COUNTS = ["20문항", "5개", "3개", "1~3개", "1~2개"];
+const COUNTS = ["20문항", "7개", "3개", "1~3개", "1~2개", "1~2개"];
 
 export default function Home() {
   return (

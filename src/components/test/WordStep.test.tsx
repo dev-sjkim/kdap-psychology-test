@@ -19,7 +19,7 @@ afterEach(() => {
 describe("WordStep", () => {
   it("가치 단어 20개를 보여 주고, 누르면 고른 상태가 된다", () => {
     render(<WordStep step={stepById("values")} />);
-    expect(screen.getAllByRole("button")).toHaveLength(20);
+    expect(screen.getAllByRole("button")).toHaveLength(40);
     const chip = screen.getByRole("button", { name: "배려" });
     fireEvent.click(chip);
     expect(chip.getAttribute("aria-pressed")).toBe("true");
@@ -29,11 +29,11 @@ describe("WordStep", () => {
   it("최대 개수를 넘게 누르면 고르지 않고 안내한다", () => {
     render(<WordStep step={stepById("values")} />);
     const chips = screen.getAllByRole("button");
-    chips.slice(0, 6).forEach((c) => fireEvent.click(c));
-    expect(testStore.getState().picks.values).toHaveLength(5);
-    expect(screen.getByText(/최대 5개까지/)).toBeTruthy();
+    chips.slice(0, 8).forEach((c) => fireEvent.click(c));
+    expect(testStore.getState().picks.values).toHaveLength(7);
+    expect(screen.getByText(/최대 7개까지/)).toBeTruthy();
     act(() => vi.advanceTimersByTime(600));
-    expect(screen.queryByText(/최대 5개까지/)).toBeNull();
+    expect(screen.queryByText(/최대 7개까지/)).toBeNull();
   });
 
   it("남길 단어는 누른 순서대로 순위가 붙는다", () => {

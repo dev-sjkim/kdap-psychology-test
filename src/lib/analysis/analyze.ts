@@ -3,8 +3,8 @@
 
 import { LIKERT_ITEMS, LIKERT_MAX, LIKERT_MIN } from "@/data/likert";
 import { RESULT_CARDS } from "@/data/result-cards";
-import { CONFLICT_PAIRS, VALUE_IDS, VALUES, type ValueId } from "@/data/values";
-import { NOW_WORDS, TRAIT_ORDER, TRAITS, VALUE_WORD_BY_ID, wordText, type TraitId } from "@/data/words";
+import { CONFLICT_PAIRS, VALUE_IDS, VALUES, type ValueGroup, type ValueId } from "@/data/values";
+import { NOW_WORDS, RELEASE_WORD_BY_ID, TRAIT_ORDER, TRAITS, VALUE_WORD_BY_ID, wordText, type TraitId } from "@/data/words";
 import { josa } from "@/lib/text/josa";
 import { STEPS, stepById, type StepId } from "@/lib/steps";
 
@@ -58,7 +58,11 @@ export interface Analysis {
     order: ValueId[];
   };
   now: string[];
+  /** 비워 내고 싶은 것(D57)과 그 자리에 들어설 가치 */
+  release: { word: string; valueId: ValueId }[];
   grow: ValueId[];
+  /** 카드 아래 한 줄로 보여 주는 가장 강한 연결(D55). 없으면 null */
+  headline: string | null;
   /** 앱이 규칙으로 찾은 눈여겨볼 연결. 해석 프롬프트와 자세히 보기에 쓴다 */
   patterns: string[];
   hesitation: {
@@ -80,8 +84,9 @@ function check(input: TestInput) {
     if (new Set(ids).size !== ids.length) throw new Error(`${step.title}: 같은 단어를 두 번 고를 수 없습니다.`);
   }
   for (const id of input.picks.values) if (!VALUE_WORD_BY_ID.has(id)) throw new Error(`알 수 없는 가치 단어: ${id}`);
-  for (const id of input.picks.narrow) if (!input.picks.values.includes(id)) throw new Error("남길 단어는 앞에서 고른 다섯 개 안에서 골라야 합니다.");
+  for (const id of input.picks.narrow) if (!input.picks.values.includes(id)) throw new Error("남길 단어는 앞에서 고른 것 안에서 골라야 합니다.");
   for (const id of input.picks.now) if (!NOW_WORDS.some((w) => w.id === id)) throw new Error(`알 수 없는 기분 단어: ${id}`);
+  for (const id of input.picks.release) if (!RELEASE_WORD_BY_ID.has(id)) throw new Error(`알 수 없는 비움 단어: ${id}`);
   for (const id of input.picks.grow) if (!VALUE_IDS.includes(id as ValueId)) throw new Error(`알 수 없는 가치: ${id}`);
 }
 
@@ -121,10 +126,40 @@ export function valueOrder(valuePicks: string[], kept: string[]): ValueId[] {
 const label = (id: ValueId) => VALUES[id].label;
 const labels = (ids: ValueId[]) => ids.map(label).join(", ");
 
-/** 데이터끼리의 연결 중 눈여겨볼 것을 규칙으로 찾는다. 최대 4개. */
-export function findPatterns(kept: KeptWord[], letGo: { word: string; valueId: ValueId }[], grow: ValueId[]): string[] {
+/**
+ * 기질 × 1순위 가치가 맞물리거나 엇갈리는 지점(D55). Schwartz 상위 차원과 Big Five의 흔한 짝으로 본다:
+ * 개방성 ↔ 변화 개방 / 성실성 ↔ 보존 / 친화성 ↔ 자기초월 / 외향성 ↔ 자기고양. 즐거움(경계)은 짝이 없다.
+ */
+const TRAIT_GROUP_PAIRS: { trait: TraitId; group: ValueGroup; high: string; low: string }[] = [
+  { trait: "openness", group: "openness", high: "새로운 생각을 즐기는", low: "현실적이고 실용적인" },
+  { trait: "conscientiousness", group: "conservation", high: "미리 계획하고 챙기는", low: "흐름에 맡기고 유연한" },
+  { trait: "agreeableness", group: "transcendence", high: "다른 사람 마음을 먼저 살피는", low: "할 말은 분명히 하는" },
+  { trait: "extraversion", group: "enhancement", high: "사람들 속에서 힘이 나는", low: "혼자만의 시간에서 힘을 얻는" },
+];
+
+export function traitValueLink(tendencies: Tendency[], top: ValueId): string | null {
+  const pair = TRAIT_GROUP_PAIRS.find((p) => p.group === VALUES[top].group);
+  if (!pair) return null;
+  const t = tendencies.find((x) => x.trait === pair.trait);
+  if (!t || t.band === "middle") return null;
+  const v = josa(label(top), "을/를");
+  if (t.band === "high") return `${pair.high} 편이고, 1순위로 ${v} 남겼어요. 기질과 가치가 같은 쪽을 보고 있어요.`;
+  return `${pair.low} 편인데, 1순위로 ${v} 남겼어요. 기질과 가치가 서로 다른 쪽을 보고 있어서, 이 사이가 요즘의 과제일 수 있어요.`;
+}
+
+/** 데이터끼리의 연결 중 눈여겨볼 것을 규칙으로 찾는다. 첫 항목이 가장 강한 연결이다(카드의 headline). */
+export function findPatterns(
+  tendencies: Tendency[],
+  kept: KeptWord[],
+  letGo: { word: string; valueId: ValueId }[],
+  release: { word: string; valueId: ValueId }[],
+  grow: ValueId[],
+): string[] {
   const out: string[] = [];
   const keptValues = kept.map((k) => k.valueId);
+
+  const link = traitValueLink(tendencies, keptValues[0]);
+  if (link) out.push(link);
 
   const counts = new Map<ValueId, number>();
   keptValues.forEach((v) => counts.set(v, (counts.get(v) ?? 0) + 1));
@@ -136,6 +171,15 @@ export function findPatterns(kept: KeptWord[], letGo: { word: string; valueId: V
   for (const [a, b] of CONFLICT_PAIRS) {
     if (distinct.includes(a) && distinct.includes(b)) {
       out.push(`남긴 가치 중 ${josa(label(a), "와/과")} ${josa(label(b), "은/는")} 서로 반대 방향을 당기는 가치예요. 두 마음 사이에서 균형을 잡고 있을 수 있어요.`);
+    }
+  }
+
+  for (const r of release) {
+    const w = josa(`'${r.word}'`, "을/를");
+    if (keptValues.includes(r.valueId)) {
+      out.push(`${w} 덜어 내고 싶다고 했는데, 그 자리에 들어설 가치(${label(r.valueId)})는 이미 끝까지 남긴 가치예요. 지키고 싶은 것을 지금 무엇이 가리고 있는지 보여 줘요.`);
+    } else if (grow.includes(r.valueId)) {
+      out.push(`${w} 덜어 내면 자리가 생기는 가치(${label(r.valueId)})를 더 키우고 싶은 힘으로도 골랐어요. 비우는 것과 키우는 것이 같은 방향이에요.`);
     }
   }
 
@@ -152,7 +196,7 @@ export function findPatterns(kept: KeptWord[], letGo: { word: string; valueId: V
   if (backAgain.length > 0) {
     out.push(`마지막에 내려놓은 '${backAgain[0].word}'의 가치(${label(backAgain[0].valueId)})를 더 키우고 싶은 힘으로 다시 골랐어요.`);
   }
-  return out.slice(0, 4);
+  return out.slice(0, 5);
 }
 
 export function analyze(input: TestInput): Analysis {
@@ -166,8 +210,10 @@ export function analyze(input: TestInput): Analysis {
 
   const kept: KeptWord[] = input.picks.narrow.map((id, i) => ({ rank: i + 1, wordId: id, word: wordText(id), valueId: VALUE_WORD_BY_ID.get(id)!.value }));
   const letGo = input.picks.values.filter((id) => !input.picks.narrow.includes(id)).map((id) => ({ word: wordText(id), valueId: VALUE_WORD_BY_ID.get(id)!.value }));
+  const release = input.picks.release.map((id) => ({ word: wordText(id), valueId: RELEASE_WORD_BY_ID.get(id)!.value }));
   const grow = input.picks.grow as ValueId[];
   const cardValue = kept[0].valueId;
+  const patterns = findPatterns(tendencies, kept, letGo, release, grow);
 
   const slowestStep = [...STEPS].sort((a, b) => input.logs[b.id].durationMs - input.logs[a.id].durationMs)[0];
 
@@ -182,8 +228,10 @@ export function analyze(input: TestInput): Analysis {
       order: valueOrder(input.picks.values, input.picks.narrow),
     },
     now: input.picks.now.map(wordText),
+    release,
     grow,
-    patterns: findPatterns(kept, letGo, grow),
+    headline: patterns[0] ?? null,
+    patterns,
     hesitation: {
       slowest: { stepId: slowestStep.id, title: slowestStep.title, seconds: Math.max(1, Math.round(input.logs[slowestStep.id].durationMs / 1000)) },
       removed: PICK_STEPS.map((s) => ({

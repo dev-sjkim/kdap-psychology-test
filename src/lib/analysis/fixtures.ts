@@ -13,16 +13,18 @@ export function sampleInput(): TestInput {
       mipip_05: 5, mipip_10: 2, mipip_15: 1, mipip_20: 2, // O: 4.5
     },
     picks: {
-      values: ["v_care", "v_influence", "v_leadership", "v_leisure", "v_stability"],
+      values: ["v_care", "v_influence", "v_leadership", "v_leisure", "v_stability", "v_growth", "v_nature"],
       narrow: ["v_care", "v_influence", "v_leadership"],
       now: ["n_absorbed", "n_relaxed", "n_busy"],
+      release: ["r_carry_alone"],
       grow: ["universalism", "achievement"],
     },
     logs: {
-      personality: { toggles: 11, durationMs: 32_000, removed: [] },
-      values: { toggles: 7, durationMs: 19_000, removed: ["v_courtesy"] },
+      personality: { toggles: 21, durationMs: 62_000, removed: [] },
+      values: { toggles: 9, durationMs: 24_000, removed: ["v_courtesy"] },
       narrow: { toggles: 3, durationMs: 9_000, removed: [] },
       now: { toggles: 3, durationMs: 6_000, removed: [] },
+      release: { toggles: 2, durationMs: 7_000, removed: ["r_rush"] },
       grow: { toggles: 3, durationMs: 5_000, removed: ["conformity"] },
     },
     takenOn: "2026-10-20",

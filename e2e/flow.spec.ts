@@ -45,8 +45,8 @@ async function walk(page: Page, screenshots = false) {
   await answerLikert(page, screenshots);
 
   await expect(page.getByRole("heading", { name: "마음이 끌리는 단어" })).toBeVisible();
-  await pick(page, 5);
-  await expectNoScroll(page, "마음이 끌리는 단어");
+  await pick(page, 7);
+  await expectNoScroll(page, "마음이 끌리는 단어(40개)");
   if (screenshots) await shot(page, "03-values");
   await page.getByRole("button", { name: "다음", exact: true }).click();
 
@@ -60,6 +60,12 @@ async function walk(page: Page, screenshots = false) {
   await pick(page, 2);
   await expectNoScroll(page, "요즘의 나");
   if (screenshots) await shot(page, "05-now");
+  await page.getByRole("button", { name: "다음", exact: true }).click();
+
+  await expect(page).toHaveURL(/\/test\/release$/);
+  await pick(page, 1);
+  await expectNoScroll(page, "비워 내고 싶은 것");
+  if (screenshots) await shot(page, "05b-release");
   await page.getByRole("button", { name: "다음", exact: true }).click();
 
   await expect(page).toHaveURL(/\/test\/grow$/);
@@ -82,6 +88,7 @@ test("시작부터 결과, 해석 복사, 다시 하기까지", async ({ page, c
   // 결과 카드와 주 버튼이 한 화면에 들어온다. 카드에는 성격 그래프와 가치 막대가 있다.
   await expect(page.getByRole("img", { name: /성격 다섯 특성 그래프/ })).toBeVisible();
   await expect(page.locator(".vbar")).toHaveCount(3);
+  await expect(page.locator(".headline")).toBeVisible();
   const card = await page.getByRole("article", { name: "결과 카드" }).boundingBox();
   const button = await page.getByRole("button", { name: "AI에게 해석 받기" }).boundingBox();
   const viewport = page.viewportSize()!;
@@ -96,8 +103,9 @@ test("시작부터 결과, 해석 복사, 다시 하기까지", async ({ page, c
   const prompt = await page.evaluate(() => navigator.clipboard.readText());
   expect(prompt).toContain("<result>");
   expect(prompt).toContain("# 마음결 · ");
-  expect(prompt).toContain("## 7. 이번 주 작은 한 걸음");
-  expect(prompt.length).toBeLessThan(4000);
+  expect(prompt).toContain("## 2. 기질이 가치를 만나는 지점");
+  expect(prompt).toContain("## 6. 이번 주 작은 한 걸음");
+  expect(prompt.length).toBeLessThan(4500);
 
   await page.getByRole("button", { name: "자세히 보기" }).click();
   await expect(page.getByRole("heading", { name: "눈여겨볼 점" })).toBeVisible();
@@ -127,13 +135,13 @@ test("클립보드가 막히면 같은 자리에 직접 복사할 글을 보여 
 test("메인 화면은 늘 시작하기만 있고, 새로고침해도 고른 단어가 남는다", async ({ page }) => {
   await startTest(page);
   await answerLikert(page);
-  await pick(page, 5);
-  const sixth = page.locator(".chips .chip").nth(5);
-  await expect(sixth).toHaveAttribute("aria-disabled", "true");
-  await sixth.click({ force: true });
-  await expect(page.getByText(/최대 5개까지/)).toBeVisible();
+  await pick(page, 7);
+  const eighth = page.locator(".chips .chip").nth(7);
+  await expect(eighth).toHaveAttribute("aria-disabled", "true");
+  await eighth.click({ force: true });
+  await expect(page.getByText(/최대 7개까지/)).toBeVisible();
   await page.reload();
-  await expect(page.locator(".chip[aria-pressed='true']")).toHaveCount(5);
+  await expect(page.locator(".chip[aria-pressed='true']")).toHaveCount(7);
   await page.goto("/");
   await expect(page.getByRole("button", { name: "시작하기" })).toBeVisible();
   await expect(page.getByRole("button", { name: /이어서 하기/ })).toHaveCount(0);
@@ -187,6 +195,15 @@ test("근거 보기는 모달로 열리고 아래 화면이 밀리지 않는다"
   const before = await startBtn.boundingBox();
   await page.getByRole("button", { name: "이 테스트에 대해" }).click();
   await expect(page.getByRole("dialog")).toBeVisible();
+  // 탭: 이 테스트 / 만든 사람. 라이선스는 눌러야 펼쳐진다.
+  await page.getByRole("tab", { name: "만든 사람" }).click();
+  await expect(page.getByText("공군 대위 김성준")).toBeVisible();
+  await expect(page.getByText(/SIL 오픈 폰트/)).toHaveCount(0);
+  await page.getByRole("button", { name: "라이선스 보기" }).click();
+  await expect(page.getByText(/SIL 오픈 폰트/)).toBeVisible();
+  await page.waitForTimeout(300);
+  await shot(page, "12-maker-tab");
+  await page.getByRole("tab", { name: "이 테스트" }).click();
   await expectNoScroll(page, "근거 모달을 연 시작 화면");
   expect(await startBtn.boundingBox()).toEqual(before);
   await page.waitForTimeout(400);

@@ -60,6 +60,7 @@ export function ResultCard({ analysis }: { analysis: Analysis }) {
           </dd>
         </div>
       </dl>
+      {analysis.headline && <p className="headline">{analysis.headline}</p>}
       <p className="card-note">유형이나 점수가 아니라, 응답이 기운 방향을 그린 거예요.</p>
     </article>
   );

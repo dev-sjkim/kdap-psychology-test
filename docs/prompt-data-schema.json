@@ -4,7 +4,7 @@
   "properties": {
     "version": {
       "type": "number",
-      "const": 3
+      "const": 4
     },
     "date": {
       "type": "string"
@@ -90,6 +90,24 @@
         "type": "string"
       }
     },
+    "release": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "word": {
+            "type": "string"
+          },
+          "makes_room_for": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "word",
+          "makes_room_for"
+        ]
+      }
+    },
     "want_to_grow": {
       "type": "array",
       "items": {
@@ -107,6 +125,12 @@
           "meaning"
         ]
       }
+    },
+    "headline": {
+      "type": [
+        "string",
+        "null"
+      ]
     },
     "patterns": {
       "type": "array",
@@ -153,7 +177,9 @@
     "kept_values",
     "let_go_words",
     "now_feelings",
+    "release",
     "want_to_grow",
+    "headline",
     "patterns",
     "hesitated",
     "limitations",

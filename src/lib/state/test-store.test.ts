@@ -20,11 +20,12 @@ describe("testStore", () => {
     expect(lasts.at(-1)).toBe(true); // 마지막 문항에서만 다음 단계로 갈 차례라고 알려 준다
     expect(lasts.slice(0, -1).every((x) => !x)).toBe(true);
     expect(firstIncompleteStep(testStore.getState())).toBe("values");
-    pickFirst("values", 5);
+    pickFirst("values", 7);
     testStore.prepareNarrow();
     expect(testStore.getState().order.narrow).toEqual(testStore.getState().picks.values);
     pickFirst("narrow", 3);
     pickFirst("now", 2);
+    pickFirst("release", 1);
     pickFirst("grow", 1);
     expect(firstIncompleteStep(testStore.getState())).toBeNull();
     const a = testStore.finish(new Date(2026, 9, 20));
@@ -57,8 +58,8 @@ describe("testStore", () => {
   it("최대 개수를 넘으면 고르지 않고, 골랐다가 뺀 단어를 기록하며, 끌리는 단어에서 빼면 남길 단어에서도 빠진다", () => {
     testStore.start();
     const ids = testStore.getState().order.values;
-    ids.slice(0, 5).forEach((id) => expect(testStore.toggle("values", id)).toBe(true));
-    expect(testStore.toggle("values", ids[5])).toBe(false);
+    ids.slice(0, 7).forEach((id) => expect(testStore.toggle("values", id)).toBe(true));
+    expect(testStore.toggle("values", ids[7])).toBe(false);
     testStore.toggle("narrow", ids[1]);
     testStore.toggle("values", ids[1]);
     expect(testStore.getState().picks.narrow).toEqual([]);

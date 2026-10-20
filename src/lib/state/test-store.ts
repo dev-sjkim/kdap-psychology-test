@@ -6,7 +6,7 @@
 import { useSyncExternalStore } from "react";
 import { LIKERT_ITEMS } from "@/data/likert";
 import { VALUE_IDS } from "@/data/values";
-import { NOW_WORDS, VALUE_WORDS } from "@/data/words";
+import { NOW_WORDS, RELEASE_WORDS, VALUE_WORDS } from "@/data/words";
 import { STORAGE_PREFIX } from "@/lib/app-info";
 import { analyze, localDate, type Analysis, type PickStepId, type StepLog } from "@/lib/analysis/analyze";
 import { STEPS, stepById, type StepId } from "@/lib/steps";
@@ -32,9 +32,9 @@ function emptyState(): TestState {
     started: false,
     likertIndex: 0,
     answers: {},
-    picks: { values: [], narrow: [], now: [], grow: [] },
+    picks: { values: [], narrow: [], now: [], release: [], grow: [] },
     logs: Object.fromEntries(STEPS.map((s): [StepId, StepLog] => [s.id, { toggles: 0, durationMs: 0, removed: [] }])) as Record<StepId, StepLog>,
-    order: { values: VALUE_WORDS.map((w) => w.id), narrow: [], now: NOW_WORDS.map((w) => w.id), grow: [...VALUE_IDS] },
+    order: { values: VALUE_WORDS.map((w) => w.id), narrow: [], now: NOW_WORDS.map((w) => w.id), release: RELEASE_WORDS.map((w) => w.id), grow: [...VALUE_IDS] },
     analysis: null,
   };
 }
@@ -47,7 +47,7 @@ function load(): TestState {
     const raw = window.sessionStorage.getItem(STORAGE_KEY);
     if (!raw) return emptyState();
     const data = JSON.parse(raw) as TestState;
-    return data.v === 4 && data.picks && data.order && data.answers ? data : emptyState();
+    return data.v === 4 && data.picks?.release && data.order?.release && data.answers ? data : emptyState();
   } catch {
     return emptyState();
   }
@@ -103,7 +103,7 @@ export const testStore = {
   /** 메인 화면의 [시작하기]: 늘 새로 시작한다(D39). */
   start() {
     const base = emptyState();
-    set({ ...base, started: true, order: { ...base.order, values: shuffled(base.order.values), grow: shuffled(base.order.grow) } });
+    set({ ...base, started: true, order: { ...base.order, values: shuffled(base.order.values), release: shuffled(base.order.release), grow: shuffled(base.order.grow) } });
   },
 
   /** 테스트 주소로 바로 들어왔는데 시작 전이면 새로 시작한다. */

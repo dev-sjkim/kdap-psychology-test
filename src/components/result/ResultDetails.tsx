@@ -53,6 +53,11 @@ export function ResultDetails({ analysis: a }: { analysis: Analysis }) {
         <li>
           <b>요즘</b> {a.now.join(", ")}
         </li>
+        {a.release.length > 0 && (
+          <li>
+            <b>비우고 싶은</b> {a.release.map((r) => `${r.word} → ${VALUES[r.valueId].label}에 자리`).join(", ")}
+          </li>
+        )}
         <li>
           <b>키우고 싶은 힘</b> {a.grow.map((id) => VALUES[id].label).join(", ")}
         </li>
