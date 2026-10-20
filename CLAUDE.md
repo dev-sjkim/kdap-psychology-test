@@ -41,6 +41,7 @@
 src/
   app/                 page.tsx(시작) · test/[step]/(단계별 주소, D39) · test/page.tsx(첫 단계로 이동) · result/ · layout.tsx · globals.css · fonts/ · icon.svg(파비콘)
 public/audio/          bgm-loop.mp3(배경음, 80초 반복)
+public/og.png          링크 미리보기 그림(D72, 원본 gallery/thumbnail.png)
   components/
     DeskDecor.tsx      PC(980px 이상) 책상 면 소품 낙서(D69)
     Notebook.tsx       노트 한 장 틀(머리 · 본문 · 바닥 버튼) · FieldsBand(No. 손글씨 번호 · Date. 손글씨 날짜, 모든 화면 공통)
