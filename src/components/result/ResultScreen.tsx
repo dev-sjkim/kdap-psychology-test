@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useMemo, useRef, useState } from "react";
+import { HandNo } from "@/components/HandNo";
 import { FieldsBand, Notebook } from "@/components/Notebook";
 import { formatCount } from "@/lib/text/format";
 import { buildCopyPrompt } from "@/lib/prompt/build-copy-prompt";
@@ -24,7 +25,7 @@ const THINKING_MS = 900;
 
 /** 결과 머리줄: No.에 이 결과의 일련번호(올린 뒤의 전체 검사 횟수, D67). 못 올렸으면 빈 밑줄. */
 function ResultBand({ day, no }: { day?: string; no?: number | null }) {
-  const hand = no != null ? <span className="enter" aria-label={`${formatCount(no)}번째 결과`}>{formatCount(no)}</span> : null;
+  const hand = no != null ? <HandNo value={no} note={`${formatCount(no)}번째로 적힌 장이에요`} /> : null;
   return <FieldsBand day={day} no={hand} />;
 }
 

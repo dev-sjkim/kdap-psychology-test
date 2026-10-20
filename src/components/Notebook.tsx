@@ -29,9 +29,10 @@ export function Notebook({ band, foot, children }: Props) {
 export function FieldsBand({ day, no, extra }: { day?: string; no?: ReactNode; extra?: ReactNode }) {
   return (
     <div className="band band-fields">
-      <span className="field">
+      {/* no가 있으면 HandNo(번호 + 메모)가 들어오고, 없으면 빈 밑줄만 그린다 */}
+      <span className="field no-field">
         <span aria-hidden="true">No.</span>
-        <span className="hand-date hand-no num">{no}</span>
+        {no ?? <span className="hand-date hand-no num" />}
       </span>
       <span className="field-right">
         <span className="field">

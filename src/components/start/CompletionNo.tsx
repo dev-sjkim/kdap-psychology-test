@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { HandNo } from "@/components/HandNo";
 import { fetchCompletionCount } from "@/lib/stats/supabase";
 import { formatCount } from "@/lib/text/format";
 
@@ -15,9 +16,5 @@ export function CompletionNo() {
     };
   }, []);
   if (count === null) return null;
-  return (
-    <span className="enter" aria-label={`지금까지 ${formatCount(count)}명이 했어요`}>
-      {formatCount(count)}
-    </span>
-  );
+  return <HandNo value={count} note={`지금까지 ${formatCount(count)}명이 해 봤어요`} />;
 }

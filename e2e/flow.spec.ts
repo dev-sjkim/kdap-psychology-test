@@ -263,7 +263,7 @@ test("PC에서 마우스를 올려도 글자 위치와 크기가 변하지 않�
   expect(after).toEqual(before);
 });
 
-test("배경음 버튼은 모든 화면 맨 위 줄 오른쪽 끝에 있고, 오늘 날짜가 손글씨로 적힌다", async ({ page }) => {
+test("배경음 버튼은 모든 화면 맨 위 줄 오른쪽 끝에 있고, 오늘 날짜가 손글씨로 적힌다", async ({ page, isMobile }) => {
   await page.goto("/");
   const toggle = page.getByRole("button", { name: /배경음/ });
   await expect(toggle).toBeVisible();
@@ -278,9 +278,34 @@ test("배경음 버튼은 모든 화면 맨 위 줄 오른쪽 끝에 있고, 오
   await expect(page.getByRole("button", { name: /배경음/ })).not.toHaveAttribute("aria-pressed", before ?? "");
   const today = new Date();
   await expect(page.locator(".hand-date:not(.hand-no):visible")).toHaveText(`${today.getFullYear()}. ${today.getMonth() + 1}. ${today.getDate()}`);
+  // No. 번호의 뜻 메모(D73): PC는 올리면, 휴대폰은 탭하면 번호 아래에 뜨고 머리줄은 밀리지 않는다. 카운터를 못 읽는 환경이면 건너뛴다.
+  const no = page.locator("button.hand-no");
+  if (await no.count()) {
+    const bandBefore = await page.locator(".band").first().boundingBox();
+    const note = page.getByRole("tooltip");
+    if (isMobile) await no.tap();
+    else await no.hover();
+    // toBeVisible은 opacity를 보지 않으므로 계산된 불투명도로 확인한다
+    const opacity = () => note.evaluate((el) => getComputedStyle(el).opacity);
+    await expect.poll(opacity).toBe("1");
+    await expect(note).toContainText(/지금까지 .*명이 해 봤어요/);
+    const nb = await note.boundingBox();
+    expect(nb!.y).toBeGreaterThan(bandBefore!.y + 30);
+    expect(await page.locator(".band").first().boundingBox()).toEqual(bandBefore);
+    if (isMobile) {
+      await page.waitForTimeout(2800);
+      await expect.poll(opacity).toBe("0");
+    } else {
+      await page.mouse.move(5, 400);
+      await expect.poll(opacity).toBe("0");
+    }
+  }
   // "?" 버튼은 메인 화면에만 있다.
   await expect(page.getByRole("button", { name: "마음결에 대해" })).toBeVisible();
   await page.getByRole("button", { name: "시작하기" }).click();
+  // 화면이 바뀌는 중에 재면 null이 나오므로 주소와 머리줄이 자리 잡은 뒤에 잰다
+  await expect(page).toHaveURL(/\/test\/personality$/);
+  await expect(page.locator(".band:visible").first()).toBeVisible();
   const t2 = await page.locator("button[aria-label*='배경음']:visible").boundingBox();
   const band2 = await page.locator(".band:visible").first().boundingBox();
   expect(t2!.y + t2!.height).toBeLessThanOrEqual(band2!.y + band2!.height + 1);

@@ -47,6 +47,7 @@ public/og.png          링크 미리보기 그림(D72, 원본 gallery/thumbnail.
     Notebook.tsx       노트 한 장 틀(머리 · 본문 · 바닥 버튼) · FieldsBand(No. 손글씨 번호 · Date. 손글씨 날짜, 모든 화면 공통)
     SoundToggle.tsx    배경음 켜기/끄기(맨 위 줄 오른쪽, D63)
     HandDate.tsx       손글씨 날짜(나눔손글씨 펜)
+    HandNo.tsx         No. 손글씨 번호 + 올리면/탭하면 뜻 메모(D67, D73)
     ProgressBand.tsx   맨 위 다섯 칸 진행도
     HandLoop.tsx       손그림 동그라미(선택 표시, 그려지는 움직임)
     test/              TestFlow(단계 순서 · 바닥 버튼) · LikertQuestion(1단계 5지선다) · WordStep(단어 칩 · 가치 카드 고르기)

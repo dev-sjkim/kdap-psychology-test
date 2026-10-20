@@ -156,6 +156,39 @@ button {
   min-width: 44px;
   text-align: center;
 }
+/* 번호가 버튼일 때(HandNo, D73): 생김새는 손글씨 그대로, 버튼 티를 모두 지운다 */
+button.hand-no {
+  margin: 0;
+  background: none;
+  border-top: 0;
+  border-left: 0;
+  border-right: 0;
+  cursor: default;
+  font-family: var(--font-pen), "Nanum Pen Script", cursive;
+}
+/* 번호의 뜻을 알려 주는 메모: 번호 아래 괘선 사이에 회색 인쇄체로. absolute라 아무것도 밀지 않는다 */
+.band-fields > .no-field {
+  position: relative;
+  overflow: visible; /* 머리줄 칸의 overflow:hidden이 아래 메모를 자르지 않게 */
+}
+.no-note {
+  position: absolute;
+  left: 0;
+  top: calc(100% + 4px);
+  z-index: 3;
+  white-space: nowrap;
+  font-family: var(--font-body-stack);
+  font-size: 12px;
+  line-height: 18px;
+  letter-spacing: 0;
+  color: var(--muted);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.2s;
+}
+.no-note.open {
+  opacity: 1;
+}
 .hand-no:empty::before {
   content: "\00a0";
 }
