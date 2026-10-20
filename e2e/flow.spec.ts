@@ -185,7 +185,7 @@ test("근거 보기는 모달로 열리고 아래 화면이 밀리지 않는다"
   await page.goto("/");
   const startBtn = page.getByRole("button", { name: "시작하기" });
   const before = await startBtn.boundingBox();
-  await page.getByRole("button", { name: "어떤 근거로 만들었나요?" }).click();
+  await page.getByRole("button", { name: "이 테스트에 대해" }).click();
   await expect(page.getByRole("dialog")).toBeVisible();
   await expectNoScroll(page, "근거 모달을 연 시작 화면");
   expect(await startBtn.boundingBox()).toEqual(before);
@@ -211,23 +211,28 @@ test("PC에서 마우스를 올려도 글자 위치와 크기가 변하지 않�
   expect(after).toEqual(before);
 });
 
-test("배경음 버튼은 모든 화면에서 왼쪽 여백 칸 같은 자리에 있고, 오늘 날짜가 손글씨로 적힌다", async ({ page }) => {
+test("배경음 버튼은 오른쪽 아래에 떠 있고 바닥 버튼과 겹치지 않으며, 오늘 날짜가 손글씨로 적힌다", async ({ page }) => {
   await page.goto("/");
   const toggle = page.getByRole("button", { name: /배경음/ });
   await expect(toggle).toBeVisible();
-  const startBox = await toggle.boundingBox();
+  const box = await toggle.boundingBox();
+  const start = await page.getByRole("button", { name: "시작하기" }).boundingBox();
+  const viewport = page.viewportSize()!;
   const notebook = await page.locator(".notebook:visible").boundingBox();
-  // 왼쪽 여백 칸(빨간 선 왼쪽 40px) 안에 있다.
-  expect(startBox!.x - notebook!.x).toBeGreaterThanOrEqual(0);
-  expect(startBox!.x + startBox!.width - notebook!.x).toBeLessThanOrEqual(40);
+  // 노트의 오른쪽 아래, 바닥 버튼 위에 있다(PC에서는 노트가 가운데 놓이므로 노트 기준으로 잰다).
+  expect(box!.x + box!.width).toBeGreaterThan(notebook!.x + notebook!.width * 0.8);
+  expect(box!.y + box!.height).toBeLessThanOrEqual(start!.y);
+  expect(box!.y).toBeGreaterThan(viewport.height * 0.6);
   const before = await toggle.getAttribute("aria-pressed");
   await toggle.click();
   await expect(page.getByRole("button", { name: /배경음/ })).not.toHaveAttribute("aria-pressed", before ?? "");
   const today = new Date();
   await expect(page.locator(".hand-date:visible")).toHaveText(`${today.getFullYear()}. ${today.getMonth() + 1}. ${today.getDate()}`);
+  // "?" 버튼은 메인 화면에만 있다.
+  await expect(page.getByRole("button", { name: "이 테스트에 대해" })).toBeVisible();
   await page.getByRole("button", { name: "시작하기" }).click();
-  const testBox = await page.locator("button[aria-label*='배경음']:visible").boundingBox();
-  expect(testBox).toEqual(startBox);
+  await expect(page.locator("button[aria-label*='배경음']:visible")).toBeVisible();
+  await expect(page.getByRole("button", { name: "이 테스트에 대해" })).toHaveCount(0);
 });
 
 test("글자는 드래그로 선택되지 않고, 결과의 프롬프트 상자만 선택할 수 있다", async ({ page }) => {

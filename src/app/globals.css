@@ -1212,13 +1212,14 @@ button {
 }
 
 /* ── 배경음 버튼: 왼쪽 여백 칸, 맨 위 줄 바로 아래(D42) ─────────────────────────────── */
+/* 배경음 버튼: 오른쪽 아래 엄지 영역, 바닥 버튼 바로 위에 떠 있다(D53). 머리글·본문과 부딪히지 않고 모든 화면에서 같은 자리다. */
 .sound-fab {
-  position: absolute;
-  top: calc(env(safe-area-inset-top, 0px) + 64px);
-  left: 4px;
-  z-index: 4;
-  width: 32px;
-  height: 32px;
+  position: fixed;
+  right: max(14px, calc((100vw - 480px) / 2 + 14px));
+  bottom: calc(env(safe-area-inset-bottom, 0px) + 16px);
+  z-index: 6;
+  width: 36px;
+  height: 36px;
   display: grid;
   place-items: center;
   padding: 0;
@@ -1484,3 +1485,80 @@ body {
   font-weight: 600;
 }
 
+/* ── 메인 화면: 문단 사이에 괘선 한 줄씩 숨 쉴 자리(D52) ─────────────────────────────── */
+.home .lede {
+  margin-top: 0;
+}
+.home .toc {
+  margin-top: var(--line);
+}
+.home .para {
+  margin-top: calc(var(--line) * 2);
+}
+.home .para-small {
+  margin-top: var(--line);
+}
+
+/* 바닥 버튼 영역 높이(--foot-h, Notebook이 잰다)만큼 위로 올려 겹치지 않게 한다 */
+.notebook .sound-fab {
+  bottom: calc(env(safe-area-inset-bottom, 0px) + var(--foot-h, 0px) + 12px);
+}
+/* PC처럼 노트가 화면보다 짧을 때는 창이 아니라 노트의 오른쪽 아래에 붙인다 */
+@media (min-width: 520px) {
+  .notebook .sound-fab {
+    position: absolute;
+    right: 14px;
+  }
+}
+
+/* ── "?" 버튼(메인 화면 맨 위 줄, Date 오른쪽, D54) ─────────────────────────────── */
+.field-right {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+}
+.about-btn {
+  width: 26px;
+  height: 26px;
+  display: grid;
+  place-items: center;
+  padding: 0;
+  border: 1px solid var(--rule-strong);
+  border-radius: 50%;
+  background: var(--paper);
+  color: var(--muted);
+  font-family: var(--font-display-stack);
+  font-weight: 700;
+  font-size: 14px;
+  line-height: 1;
+  transition: color 0.2s, border-color 0.2s;
+}
+.modal.about h3 {
+  margin: 4px 0 -4px;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--muted);
+  letter-spacing: 0.04em;
+}
+.modal.about .refs-list {
+  font-size: 12px;
+  line-height: 18px;
+  color: var(--muted);
+}
+.about-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 14px;
+  font-size: 14px;
+}
+.about-links a {
+  color: var(--ink);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+@media (hover: hover) and (pointer: fine) {
+  .about-btn:hover {
+    color: var(--ink);
+    border-color: var(--muted);
+  }
+}
