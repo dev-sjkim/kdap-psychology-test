@@ -1,0 +1,446 @@
+<title>마음결 화면 목업</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<style>
+/*@FONTS@*/
+
+/* Layout: 책상 바탕 위에 360px 노트 속지 네 장을 나란히 올려 둔다. 좁은 화면에서는 한 줄로 쌓인다. */
+:root {
+  --desk: #E7E0D1;
+  --paper: #F3EEE3;
+  --ink: #24211C;
+  --muted: #6E675C;
+  --rule: #E2D9C8;
+  --rule-strong: #CFC4AE;
+  --margin: #D9644A;
+  --accent: #C2492F;
+  --on-accent: #F3EEE3;
+  --slip: #F9F5EC;
+  --slip-edge: #D5CAB4;
+  --tape: rgba(206, 190, 150, 0.55);
+  --halo: rgba(194, 73, 47, 0.16);
+  --v-open: #D9813B;
+  --v-enh: #9B4F7A;
+  --v-cons: #3E8A86;
+  --v-trans: #5E8C4A;
+  --v-hed: #BA685A;
+  --font-display: "MaruBuri", "Noto Serif KR", "AppleMyungjo", serif;
+  --font-body: "Pretendard", -apple-system, "Apple SD Gothic Neo", "Malgun Gothic", sans-serif;
+  --line: 28px;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --desk: #141210; --paper: #1F1D19; --ink: #ECE5D8; --muted: #A9A090; --rule: #2E2A23; --rule-strong: #4A443A;
+    --margin: #8E4A3A; --accent: #E07A5F; --on-accent: #1F1D19; --slip: #27241F; --slip-edge: #3D372E;
+    --tape: rgba(150, 136, 104, 0.4); --halo: rgba(224, 122, 95, 0.2);
+    --v-open: #E39A5E; --v-enh: #C27DA3; --v-cons: #6DB3AE; --v-trans: #8DB676; --v-hed: #D68A7B;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --desk: #141210; --paper: #1F1D19; --ink: #ECE5D8; --muted: #A9A090; --rule: #2E2A23; --rule-strong: #4A443A;
+  --margin: #8E4A3A; --accent: #E07A5F; --on-accent: #1F1D19; --slip: #27241F; --slip-edge: #3D372E;
+  --tape: rgba(150, 136, 104, 0.4); --halo: rgba(224, 122, 95, 0.2);
+  --v-open: #E39A5E; --v-enh: #C27DA3; --v-cons: #6DB3AE; --v-trans: #8DB676; --v-hed: #D68A7B;
+  color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+body {
+  background: var(--desk);
+  color: var(--ink);
+  font-family: var(--font-body);
+  font-size: 16px;
+  word-break: keep-all;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  padding-block: 28px 56px;
+}
+button { font: inherit; color: inherit; cursor: pointer; }
+a { color: inherit; }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.num { font-variant-numeric: tabular-nums; }
+
+/* 페이지 머리 */
+.page-head { max-width: 1536px; margin: 0 auto 28px; display: grid; gap: 4px; }
+.page-head h1 { margin: 0; font: 700 24px/1.3 var(--font-display); }
+.page-head p { margin: 0; color: var(--muted); font-size: 14px; line-height: 1.6; }
+
+.boards { max-width: 1536px; margin: 0 auto; display: flex; flex-wrap: wrap; gap: 40px 32px; align-items: flex-start; }
+.board { width: 360px; max-width: 100%; display: grid; gap: 12px; min-width: 0; }
+.board-label { font-size: 13px; font-weight: 600; color: var(--muted); letter-spacing: 0.04em; }
+.notes { margin: 0; padding-left: 18px; color: var(--muted); font-size: 13px; line-height: 1.65; display: grid; gap: 2px; }
+
+/* 노트 속지 한 장 */
+.phone {
+  height: 740px;
+  border: 1px solid var(--rule-strong);
+  background: var(--paper);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+.sheet {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  background:
+    linear-gradient(to right, transparent 39px, var(--margin) 39px, var(--margin) 40px, transparent 40px),
+    linear-gradient(var(--paper), var(--paper)) top / 100% 56px no-repeat,
+    repeating-linear-gradient(to bottom, transparent 0, transparent 27px, var(--rule) 27px, var(--rule) 28px),
+    var(--paper);
+  background-attachment: local;
+}
+.content { padding: 0 20px 28px 52px; }
+.band { height: 56px; padding: 0 20px 0 52px; display: flex; align-items: flex-end; }
+
+/* 노트 인쇄 칸 */
+.band-fields { justify-content: flex-end; gap: 18px; padding-bottom: 12px; font-size: 12px; color: var(--muted); letter-spacing: 0.04em; }
+.blank { display: inline-block; width: 44px; border-bottom: 1px solid var(--rule-strong); margin-left: 4px; transform: translateY(2px); }
+
+/* 진행도: 뒤로(여백 칸 안) · 부별 길이 비례 막대 · 개수 */
+.band-progress { align-items: center; gap: 12px; padding: 8px 20px 0 2px; }
+.back { flex: none; width: 36px; height: 36px; display: grid; place-items: center; border: 0; background: none; padding: 0; color: var(--ink); }
+.back svg { width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+.prog-track { flex: 1; display: flex; gap: 3px; height: 4px; margin-left: 4px; }
+.prog-track > span { flex: var(--w); position: relative; background: var(--rule-strong); }
+.prog-track > span::after { content: ""; position: absolute; inset: 0 auto 0 0; width: calc(var(--fill) * 100%); background: var(--ink); }
+.prog-count { flex: none; min-width: 40px; text-align: right; font-size: 13px; font-weight: 600; }
+.part-label { margin: 0; height: var(--line); font-size: 13px; line-height: var(--line); color: var(--muted); }
+
+/* 노트 여백 칸에 적는 번호 */
+.m { position: absolute; left: -52px; width: 40px; padding-right: 9px; text-align: right; font-family: var(--font-display); color: var(--muted); }
+.footnote { margin: 0; font-size: 12px; line-height: var(--line); color: var(--muted); }
+
+/* 색연필 밑줄 */
+.pencil { position: relative; padding: 0 2px; margin-left: -2px; }
+.pencil::after {
+  content: ""; position: absolute; left: -1px; right: -1px; bottom: -3px; height: 7px; background: var(--v);
+  -webkit-mask: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 10' preserveAspectRatio='none'><path d='M2 6 C 20 3, 40 7.5, 60 4.5 S 88 5.5, 98 3.5' fill='none' stroke='black' stroke-width='3' stroke-linecap='round'/><path d='M5 8 C 30 6.5, 58 8.5, 95 6.5' fill='none' stroke='black' stroke-opacity='.55' stroke-width='1.6' stroke-linecap='round'/></svg>") center / 100% 100% no-repeat;
+  mask: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 10' preserveAspectRatio='none'><path d='M2 6 C 20 3, 40 7.5, 60 4.5 S 88 5.5, 98 3.5' fill='none' stroke='black' stroke-width='3' stroke-linecap='round'/><path d='M5 8 C 30 6.5, 58 8.5, 95 6.5' fill='none' stroke='black' stroke-opacity='.55' stroke-width='1.6' stroke-linecap='round'/></svg>") center / 100% 100% no-repeat;
+}
+
+/* 바닥 고정 영역 */
+.foot { padding: 12px 20px 16px; background: var(--paper); display: grid; gap: 10px; }
+.btn { display: block; width: 100%; height: 52px; border: 0; border-radius: 2px; background: var(--accent); color: var(--on-accent); font-size: 19px; font-weight: 700; letter-spacing: 0.01em; }
+.btn-wait { background: transparent; color: var(--muted); border: 1px dashed var(--rule-strong); font-size: 16px; font-weight: 600; cursor: default; }
+.sublinks { display: flex; justify-content: center; gap: 4px; font-size: 13px; color: var(--muted); }
+.sublinks button { border: 0; background: none; padding: 4px 8px; color: var(--muted); text-decoration: underline; text-underline-offset: 3px; }
+
+/* 손으로 그린 동그라미 */
+.loop { position: absolute; pointer-events: none; fill: none; stroke: var(--accent); stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; overflow: visible; }
+
+/* 1. 시작 */
+.wordmark { margin: 0; font: 700 44px/56px var(--font-display); letter-spacing: -0.01em; }
+.lede { margin: 0; font-size: 18px; line-height: var(--line); }
+.toc { list-style: none; margin: 28px 0 0; padding: 0; }
+.toc li { position: relative; display: flex; align-items: flex-end; height: var(--line); font-size: 15px; line-height: 22px; padding-bottom: 3px; }
+.toc li .m { bottom: 3px; font-size: 14px; }
+.toc-dots { flex: 1; border-bottom: 1px dotted var(--muted); margin: 0 6px 5px; min-width: 12px; }
+.toc-total { margin: 0; height: var(--line); text-align: right; font-size: 13px; color: var(--muted); line-height: var(--line); }
+.para { margin: 28px 0 0; font-size: 15px; line-height: var(--line); }
+.para.small { margin-top: 0; font-size: 13px; color: var(--muted); }
+.para.small a { color: var(--ink); text-underline-offset: 3px; }
+.count-line { margin: 28px 0 0; font-size: 13px; line-height: var(--line); color: var(--muted); }
+.count-line b { font-weight: 600; color: var(--ink); }
+
+/* 2. 문항 */
+.q { position: relative; margin-top: 28px; }
+.q .m { top: 0; font-size: 17px; line-height: var(--line); }
+.q-text { margin: 0; font-size: 20px; line-height: var(--line); }
+.options { margin-top: 28px; display: grid; }
+.opt { height: 56px; border: 0; background: none; padding: 0 0 0 0; display: flex; align-items: flex-end; gap: 14px; text-align: left; }
+.opt-n { width: 14px; height: var(--line); line-height: var(--line); font-family: var(--font-display); font-size: 14px; color: var(--muted); }
+.opt-label { position: relative; height: var(--line); line-height: var(--line); font-size: 16px; padding: 0 6px; }
+.opt-label .loop { inset: -7px -16px -6px -16px; width: calc(100% + 32px); height: calc(100% + 13px); }
+.opt[aria-checked="true"] .opt-label { font-weight: 600; }
+
+/* 3. 카드 고르기 */
+.prompt { margin: 0; font-size: 18px; line-height: var(--line); }
+.picked { margin: 0; height: var(--line); display: flex; justify-content: flex-end; align-items: baseline; gap: 4px; font-size: 13px; color: var(--muted); line-height: var(--line); }
+.picked b { font: 700 20px/1 var(--font-display); color: var(--ink); }
+.cards { margin-top: 8px; display: grid; grid-template-columns: 1fr 1fr; gap: 10px 8px; }
+.vcard { position: relative; height: 80px; padding: 11px 12px; border: 1px solid var(--slip-edge); border-radius: 1px; background: var(--slip); display: flex; flex-direction: column; align-items: flex-start; gap: 4px; text-align: left; min-width: 0; }
+.cards .vcard:nth-child(4n+1) { transform: rotate(-0.6deg); }
+.cards .vcard:nth-child(4n+2) { transform: rotate(0.4deg); }
+.cards .vcard:nth-child(4n+3) { transform: rotate(0.5deg); }
+.cards .vcard:nth-child(4n) { transform: rotate(-0.3deg); }
+.vname { font-size: 17px; font-weight: 600; line-height: 26px; }
+.vdesc { margin-top: 4px; font-size: 13px; line-height: 18px; color: var(--muted); white-space: nowrap; }
+.vcard .loop { inset: -6px; width: calc(100% + 12px); height: calc(100% + 12px); }
+
+/* 4. 결과 */
+.band-result { justify-content: space-between; align-items: flex-end; padding-bottom: 12px; }
+.band-result .brand { font: 700 18px/1 var(--font-display); }
+.band-result .date { font-size: 12px; color: var(--muted); letter-spacing: 0.02em; }
+.sec { margin: 0; min-height: 56px; font: 700 22px/56px var(--font-display); text-wrap: balance; }
+.top3 { list-style: none; margin: 0; padding: 0; }
+.top3 li { position: relative; display: grid; grid-template-rows: 28px 28px; height: 56px; min-width: 0; }
+.top3 .m { top: 0; font-size: 24px; line-height: 28px; color: var(--ink); }
+.top3 .tname { justify-self: start; font-size: 19px; font-weight: 600; line-height: var(--line); }
+.tdef { font-size: 13px; color: var(--muted); line-height: var(--line); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.more { display: inline-block; height: var(--line); line-height: var(--line); font-size: 13px; color: var(--ink); text-underline-offset: 3px; }
+
+.slip { position: relative; margin: 34px 2px 28px; padding: 14px 14px 12px; background: var(--slip); border: 1px solid var(--slip-edge); }
+.slip::before { content: ""; position: absolute; top: -10px; left: 50%; width: 72px; height: 20px; background: var(--tape); transform: translateX(-50%) rotate(-2deg); }
+.slip.tilt-l { transform: rotate(-0.7deg); }
+.slip.tilt-r { transform: rotate(0.6deg); }
+.slip-title { margin: 0 0 6px; font-size: 13px; font-weight: 600; color: var(--muted); letter-spacing: 0.02em; }
+.compass { display: block; width: 100%; height: auto; max-width: 100%; }
+.compass .axis { fill: none; stroke: var(--ink); stroke-width: 1.2; stroke-linecap: round; }
+.compass .tick { stroke: var(--ink); stroke-width: 1; }
+.compass text { fill: var(--muted); font-family: var(--font-body); font-size: 11.5px; }
+.compass .halo { fill: var(--halo); }
+.compass .dot { fill: var(--accent); }
+.slip-cap { margin: 8px 0 0; font-size: 14px; line-height: 22px; }
+
+.traits { display: grid; }
+.trait { display: grid; grid-template-columns: 76px 1fr 58px; align-items: end; height: var(--line); gap: 8px; }
+.trait-name { font-size: 14px; line-height: var(--line); white-space: nowrap; }
+.trait-band { font-size: 12px; color: var(--muted); text-align: right; line-height: var(--line); white-space: nowrap; }
+.trait-band.on { color: var(--ink); font-weight: 600; }
+.track { position: relative; height: var(--line); }
+.track::before { content: ""; position: absolute; left: 0; right: 0; top: 17px; height: 1px; background: var(--ink); }
+.track i { position: absolute; top: 14px; width: 1px; height: 7px; background: var(--ink); }
+.track i.mid { top: 11px; height: 13px; }
+.track b { position: absolute; top: 12px; width: 28px; height: 11px; margin-left: -14px; border-radius: 50%; background: var(--halo); }
+.track u { position: absolute; top: 13px; width: 9px; height: 9px; margin-left: -4.5px; border-radius: 50%; background: var(--ink); }
+.scale-legend { display: grid; grid-template-columns: 76px 1fr 58px; gap: 8px; height: var(--line); font-size: 11px; color: var(--muted); line-height: var(--line); }
+.scale-legend span:nth-child(2) { display: flex; justify-content: space-between; }
+
+.swls { display: flex; align-items: baseline; gap: 8px; height: 56px; }
+.swls .big { font: 700 40px/56px var(--font-display); }
+.swls .of { font-size: 14px; color: var(--muted); }
+.swls .lab { font-size: 15px; font-weight: 600; margin-left: 4px; }
+.swls-track { position: relative; height: var(--line); }
+.swls-track::before { content: ""; position: absolute; left: 0; right: 0; top: 13px; height: 1px; background: var(--ink); }
+.swls-track u { position: absolute; top: 9px; width: 9px; height: 9px; margin-left: -4.5px; border-radius: 50%; background: var(--ink); }
+.swls-track span { position: absolute; top: 14px; font-size: 11px; color: var(--muted); line-height: 14px; }
+
+.compare { margin: 0; display: grid; }
+.compare div { display: grid; grid-template-columns: 84px 1fr; height: var(--line); align-items: end; }
+.compare dt { font-size: 13px; color: var(--muted); line-height: var(--line); }
+.compare dd { margin: 0; font-size: 15px; line-height: var(--line); display: flex; gap: 10px; }
+.compare dd .pencil { margin-left: 0; }
+.memo-q { margin: 0; font-size: 15px; line-height: 23px; }
+.memo-meta { margin: 8px 0 0; font-size: 13px; line-height: 20px; color: var(--ink); }
+.memo-note { margin: 6px 0 0; font-size: 12px; color: var(--muted); }
+
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; animation: none !important; } }
+</style>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
+  <defs>
+    <symbol id="loop-wide" viewBox="0 0 300 60" preserveAspectRatio="none">
+      <path vector-effect="non-scaling-stroke" d="M26 37 C 17 16, 108 5, 170 7 C 247 9, 295 19, 291 34 C 287 49, 203 56, 139 54 C 69 52, 7 46, 10 30 C 12 19, 43 11, 78 8"/>
+    </symbol>
+    <symbol id="loop-box" viewBox="0 0 200 100" preserveAspectRatio="none">
+      <path vector-effect="non-scaling-stroke" d="M20 20 C 52 5, 150 3, 187 13 C 199 30, 198 71, 189 87 C 151 98, 49 99, 13 89 C 2 70, 3 33, 22 15 C 31 9, 46 6, 61 5"/>
+    </symbol>
+  </defs>
+</svg>
+
+<header class="page-head">
+  <h1>마음결 화면 목업</h1>
+  <p>노트 속지 방향 · 360 × 740 기준 · 예시 응답으로 채운 화면입니다. 결과 화면은 속지 안에서 스크롤됩니다.</p>
+</header>
+
+<main class="boards">
+
+  <!-- 1. 시작 -->
+  <section class="board" aria-labelledby="b1">
+    <div class="board-label" id="b1">1 · 시작</div>
+    <div class="phone">
+      <div class="sheet">
+        <div class="band band-fields">
+          <span>No.<span class="blank"></span></span>
+          <span>Date. <span class="num">2026 . 10 . 20</span></span>
+        </div>
+        <div class="content">
+          <h2 class="wordmark">마음결</h2>
+          <p class="lede">여덟 분 동안 적어 보는<br>나의 성격과 가치</p>
+          <ol class="toc">
+            <li><span class="m">1부</span><span>평소의 나</span><span class="toc-dots"></span><span class="num">20문항</span></li>
+            <li><span class="m">2부</span><span>내가 중요하게 여기는 것</span><span class="toc-dots"></span><span class="num">20문항</span></li>
+            <li><span class="m">3부</span><span>요즘의 나</span><span class="toc-dots"></span><span class="num">5문항</span></li>
+            <li><span class="m">4부</span><span>가치 카드 고르기</span><span class="toc-dots"></span><span class="num">2장</span></li>
+          </ol>
+          <p class="toc-total">모두 합쳐 약 8분</p>
+          <p class="para">응답은 이 브라우저 안에서만 계산하고, 어디에도 보내거나 저장하지 않아요.</p>
+          <p class="para small">재미와 자기 이해를 위한 테스트예요. 심리 진단이 아니에요. <a href="#b1">어떤 척도를 쓰나요?</a></p>
+          <p class="count-line">지금까지 <b class="num">1,284</b>장이 채워졌어요</p>
+        </div>
+      </div>
+      <div class="foot">
+        <button class="btn" type="button">시작하기</button>
+      </div>
+    </div>
+    <ul class="notes">
+      <li>맨 위 No. / Date. 칸은 노트 속지의 인쇄 영역을 그대로 옮긴 것입니다.</li>
+      <li>부별 문항 수는 목차처럼 점선으로 이었습니다.</li>
+      <li>'지금까지 N장' 줄은 DB(Supabase)를 붙일 때만 나타납니다.</li>
+    </ul>
+  </section>
+
+  <!-- 2. 문항 -->
+  <section class="board" aria-labelledby="b2">
+    <div class="board-label" id="b2">2 · 문항</div>
+    <div class="phone">
+      <div class="sheet">
+        <div class="band band-progress">
+          <button class="back" type="button" aria-label="이전 문항"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5 L8 12 L15 19"/></svg></button>
+          <div class="prog-track" role="progressbar" aria-label="전체 진행" aria-valuemin="0" aria-valuemax="47" aria-valuenow="27">
+            <span style="--w:20; --fill:1"></span>
+            <span style="--w:20; --fill:0.35"></span>
+            <span style="--w:5; --fill:0"></span>
+            <span style="--w:2; --fill:0"></span>
+          </div>
+          <span class="prog-count num">27/45</span>
+        </div>
+        <div class="content">
+          <p class="part-label">2부 · 내가 중요하게 여기는 것</p>
+          <div class="q"><span class="m num">27</span><p class="q-text">이 사람은 살면서 다양한 일을 해 보는 것이 중요하다고 생각한다. 늘 새로 해 볼 거리를 찾는다.</p></div>
+          <div class="options" role="radiogroup" aria-label="나와 얼마나 비슷한가요">
+            <button class="opt" type="button" role="radio" aria-checked="false"><span class="opt-n num">1</span><span class="opt-label">나와 전혀 비슷하지 않다</span></button>
+            <button class="opt" type="button" role="radio" aria-checked="false"><span class="opt-n num">2</span><span class="opt-label">나와 비슷하지 않다</span></button>
+            <button class="opt" type="button" role="radio" aria-checked="false"><span class="opt-n num">3</span><span class="opt-label">나와 조금 비슷하다</span></button>
+            <button class="opt" type="button" role="radio" aria-checked="false"><span class="opt-n num">4</span><span class="opt-label">나와 어느 정도 비슷하다</span></button>
+            <button class="opt" type="button" role="radio" aria-checked="true"><span class="opt-n num">5</span><span class="opt-label">나와 비슷하다<svg class="loop" aria-hidden="true"><use href="#loop-wide" width="100%" height="100%"/></svg></span></button>
+            <button class="opt" type="button" role="radio" aria-checked="false"><span class="opt-n num">6</span><span class="opt-label">나와 매우 비슷하다</span></button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <ul class="notes">
+      <li>진행도는 부별 길이에 비례한 네 칸 막대입니다. 지금은 2부 20문항 중 7번째입니다.</li>
+      <li>답을 고르면 손으로 동그라미 친 테두리가 그려지고 0.25초 뒤 다음 문항으로 넘어갑니다.</li>
+      <li>글줄은 28px 괘선 위에 놓입니다.</li>
+    </ul>
+  </section>
+
+  <!-- 3. 카드 고르기 -->
+  <section class="board" aria-labelledby="b3">
+    <div class="board-label" id="b3">3 · 카드 고르기</div>
+    <div class="phone">
+      <div class="sheet">
+        <div class="band band-progress">
+          <button class="back" type="button" aria-label="이전 화면"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5 L8 12 L15 19"/></svg></button>
+          <div class="prog-track" role="progressbar" aria-label="전체 진행" aria-valuemin="0" aria-valuemax="47" aria-valuenow="45">
+            <span style="--w:20; --fill:1"></span>
+            <span style="--w:20; --fill:1"></span>
+            <span style="--w:5; --fill:1"></span>
+            <span style="--w:2; --fill:0.5"></span>
+          </div>
+          <span class="prog-count num">46/47</span>
+        </div>
+        <div class="content">
+          <p class="part-label">4부 · 가치 카드 고르기 (1/2)</p>
+          <p class="prompt">지금의 나에게 가장 중요하다고 느끼는 가치 3개를 골라 주세요.</p>
+          <p class="picked"><b class="num">2</b> / 3 골랐어요</p>
+          <div class="cards">
+            <button class="vcard" type="button" aria-pressed="true" style="--v: var(--v-trans)"><span class="vname pencil">배려</span><span class="vdesc">곁의 사람 돌보기</span><svg class="loop" aria-hidden="true"><use href="#loop-box" width="100%" height="100%"/></svg></button>
+            <button class="vcard" type="button" aria-pressed="false" style="--v: var(--v-open)"><span class="vname pencil">새로움</span><span class="vdesc">새 경험과 도전</span></button>
+            <button class="vcard" type="button" aria-pressed="false" style="--v: var(--v-cons)"><span class="vname pencil">안정</span><span class="vdesc">안전과 질서</span></button>
+            <button class="vcard" type="button" aria-pressed="true" style="--v: var(--v-open)"><span class="vname pencil">자기주도</span><span class="vdesc">스스로 정하기</span><svg class="loop" aria-hidden="true"><use href="#loop-box" width="100%" height="100%"/></svg></button>
+            <button class="vcard" type="button" aria-pressed="false" style="--v: var(--v-enh)"><span class="vname pencil">성취</span><span class="vdesc">해내고 인정받기</span></button>
+            <button class="vcard" type="button" aria-pressed="false" style="--v: var(--v-trans)"><span class="vname pencil">공존</span><span class="vdesc">모두가 조화롭게</span></button>
+            <button class="vcard" type="button" aria-pressed="false" style="--v: var(--v-cons)"><span class="vname pencil">전통</span><span class="vdesc">이어 온 관습</span></button>
+            <button class="vcard" type="button" aria-pressed="false" style="--v: var(--v-hed)"><span class="vname pencil">즐거움</span><span class="vdesc">삶을 누리기</span></button>
+            <button class="vcard" type="button" aria-pressed="false" style="--v: var(--v-enh)"><span class="vname pencil">영향력</span><span class="vdesc">이끌고 정하기</span></button>
+            <button class="vcard" type="button" aria-pressed="false" style="--v: var(--v-cons)"><span class="vname pencil">규범</span><span class="vdesc">예의와 약속</span></button>
+          </div>
+        </div>
+      </div>
+      <div class="foot">
+        <button class="btn btn-wait" type="button" aria-disabled="true">1개 더 골라 주세요</button>
+      </div>
+    </div>
+    <ul class="notes">
+      <li>가치 이름 아래 색연필 밑줄은 상위 차원 색입니다(변화·성취·안정·배려 계열).</li>
+      <li>고른 카드에는 동그라미가 그려지고, 3개를 채우면 버튼이 [다음]으로 바뀝니다.</li>
+      <li>카드 순서는 사람마다 섞입니다.</li>
+    </ul>
+  </section>
+
+  <!-- 4. 결과 -->
+  <section class="board" aria-labelledby="b4">
+    <div class="board-label" id="b4">4 · 결과</div>
+    <div class="phone">
+      <div class="sheet">
+        <div class="band band-result">
+          <span class="brand">마음결</span>
+          <span class="date num">2026. 10. 20. 의 기록</span>
+        </div>
+        <div class="content">
+          <h3 class="sec">나의 가치</h3>
+          <ol class="top3">
+            <li><span class="m num">1</span><span class="tname pencil" style="--v: var(--v-open)">자기주도</span><span class="tdef">생각과 행동을 스스로 고르고 탐색하는 것</span></li>
+            <li><span class="m num">2</span><span class="tname pencil" style="--v: var(--v-trans)">공존</span><span class="tdef">모든 사람과 자연을 이해하고 아끼는 것</span></li>
+            <li><span class="m num">3</span><span class="tname pencil" style="--v: var(--v-open)">새로움</span><span class="tdef">새로운 경험과 도전에서 오는 활력</span></li>
+          </ol>
+          <p class="footnote">다른 사람이 아니라 내 응답의 평균과 견준 순서예요.</p>
+          <a class="more" href="#b4">10가지 모두 보기</a>
+
+          <div class="slip tilt-l">
+            <p class="slip-title">가치 나침반</p>
+            <svg class="compass" viewBox="0 0 248 196" role="img" aria-label="가치 나침반. 변화 개방과 자기초월 쪽, 오른쪽 위에 위치합니다.">
+              <path class="axis" d="M124 24 C 125 64, 123 132, 124 172"/>
+              <path class="axis" d="M58 98 C 92 97, 156 99, 190 98"/>
+              <line class="tick" x1="120" y1="61" x2="128" y2="61"/>
+              <line class="tick" x1="120" y1="135" x2="128" y2="135"/>
+              <line class="tick" x1="91" y1="94" x2="91" y2="102"/>
+              <line class="tick" x1="157" y1="94" x2="157" y2="102"/>
+              <text x="124" y="14" text-anchor="middle">변화 개방</text>
+              <text x="124" y="190" text-anchor="middle">보존</text>
+              <text x="2" y="102">자기고양</text>
+              <text x="246" y="102" text-anchor="end">자기초월</text>
+              <ellipse class="halo" cx="157" cy="46" rx="15" ry="13"/>
+              <circle class="dot" cx="157" cy="46" r="5"/>
+            </svg>
+            <p class="slip-cap">새로운 경험과, 함께 사는 세상을 아끼는 쪽에 가까워요.</p>
+          </div>
+
+          <h3 class="sec">성격</h3>
+          <div class="traits">
+            <div class="trait"><span class="trait-name">외향성</span><span class="track"><i style="left:0"></i><i style="left:25%"></i><i class="mid" style="left:50%"></i><i style="left:75%"></i><i style="left:100%"></i><b style="left:68.75%"></b><u style="left:68.75%"></u></span><span class="trait-band on">높은 편</span></div>
+            <div class="trait"><span class="trait-name">친화성</span><span class="track"><i style="left:0"></i><i style="left:25%"></i><i class="mid" style="left:50%"></i><i style="left:75%"></i><i style="left:100%"></i><b style="left:56.25%"></b><u style="left:56.25%"></u></span><span class="trait-band">중간 부근</span></div>
+            <div class="trait"><span class="trait-name">성실성</span><span class="track"><i style="left:0"></i><i style="left:25%"></i><i class="mid" style="left:50%"></i><i style="left:75%"></i><i style="left:100%"></i><b style="left:75%"></b><u style="left:75%"></u></span><span class="trait-band on">높은 편</span></div>
+            <div class="trait"><span class="trait-name">정서 민감성</span><span class="track"><i style="left:0"></i><i style="left:25%"></i><i class="mid" style="left:50%"></i><i style="left:75%"></i><i style="left:100%"></i><b style="left:37.5%"></b><u style="left:37.5%"></u></span><span class="trait-band">중간 부근</span></div>
+            <div class="trait"><span class="trait-name">지성·상상력</span><span class="track"><i style="left:0"></i><i style="left:25%"></i><i class="mid" style="left:50%"></i><i style="left:75%"></i><i style="left:100%"></i><b style="left:62.5%"></b><u style="left:62.5%"></u></span><span class="trait-band">중간 부근</span></div>
+            <div class="scale-legend"><span></span><span class="num"><span>1</span><span>3</span><span>5</span></span><span></span></div>
+          </div>
+          <p class="footnote">가운데 3을 기준으로 나눴어요. 다른 사람과 견준 값이 아니에요.</p>
+
+          <h3 class="sec">요즘의 만족감</h3>
+          <div class="swls"><span class="big num">24</span><span class="of num">/ 35</span><span class="lab">약간 만족하는 편</span></div>
+          <div class="swls-track"><u style="left:63.3%"></u><span class="num" style="left:0">5</span><span class="num" style="right:0">35</span></div>
+
+          <h3 class="sec">직접 고른 가치와 견주면</h3>
+          <dl class="compare">
+            <div><dt>둘 다</dt><dd><span class="pencil" style="--v: var(--v-open)">자기주도</span></dd></div>
+            <div><dt>응답에서만</dt><dd><span class="pencil" style="--v: var(--v-trans)">공존</span><span class="pencil" style="--v: var(--v-open)">새로움</span></dd></div>
+            <div><dt>고르기만</dt><dd><span class="pencil" style="--v: var(--v-trans)">배려</span><span class="pencil" style="--v: var(--v-enh)">성취</span></dd></div>
+            <div><dt>키우고 싶은</dt><dd><span class="pencil" style="--v: var(--v-trans)">배려</span></dd></div>
+          </dl>
+
+          <div class="slip tilt-r">
+            <p class="slip-title">가장 오래 고민한 문항</p>
+            <p class="memo-q">이 사람은 전통적인 방식대로 하는 것이 가장 좋다고 생각한다. 배워 온 관습을 지켜 나가는 것이 이 사람에게 중요하다.</p>
+            <p class="memo-meta"><span class="num">14초</span> 동안 고민하고 '나와 조금 비슷하다'를 골랐어요. 답을 한 번 바꿨어요.</p>
+            <p class="memo-note">재미로 보는 참고 정보예요.</p>
+          </div>
+          <a class="more" href="#b4">어떻게 계산했나요?</a>
+        </div>
+      </div>
+      <div class="foot">
+        <button class="btn" type="button">AI에게 해석 받기</button>
+        <div class="sublinks"><button type="button">JSON 복사</button><button type="button">다운로드</button><button type="button">다시 하기</button></div>
+      </div>
+    </div>
+    <ul class="notes">
+      <li>나침반과 오래 고민한 문항은 테이프로 붙인 메모처럼 보입니다.</li>
+      <li>성격 점 주변의 옅은 띠는 '대략 이 근처'라는 표현이며 통계 구간이 아닙니다.</li>
+      <li>주 버튼은 바닥에 고정되어 있습니다. 속지 안을 스크롤해 보세요.</li>
+    </ul>
+  </section>
+
+</main>

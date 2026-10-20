@@ -1,0 +1,162 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "properties": {
+    "version": {
+      "type": "number",
+      "const": 3
+    },
+    "date": {
+      "type": "string"
+    },
+    "card": {
+      "type": "object",
+      "properties": {
+        "value": {
+          "type": "string"
+        },
+        "picture": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "value",
+        "picture"
+      ]
+    },
+    "personality": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "trait": {
+            "type": "string"
+          },
+          "band": {
+            "type": "string"
+          },
+          "lean": {
+            "type": "string"
+          },
+          "strong": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "trait",
+          "band",
+          "lean",
+          "strong"
+        ]
+      }
+    },
+    "kept_values": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "rank": {
+            "type": "integer",
+            "minimum": -9007199254740991,
+            "maximum": 9007199254740991
+          },
+          "word": {
+            "type": "string"
+          },
+          "value": {
+            "type": "string"
+          },
+          "meaning": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "rank",
+          "word",
+          "value",
+          "meaning"
+        ]
+      }
+    },
+    "let_go_words": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "now_feelings": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "want_to_grow": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "value": {
+            "type": "string"
+          },
+          "meaning": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "value",
+          "meaning"
+        ]
+      }
+    },
+    "patterns": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "hesitated": {
+      "type": "object",
+      "properties": {
+        "slowest_step": {
+          "type": "string"
+        },
+        "picked_then_removed": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "required": [
+        "slowest_step",
+        "picked_then_removed"
+      ]
+    },
+    "limitations": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "sources": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    }
+  },
+  "required": [
+    "version",
+    "date",
+    "card",
+    "personality",
+    "kept_values",
+    "let_go_words",
+    "now_feelings",
+    "want_to_grow",
+    "patterns",
+    "hesitated",
+    "limitations",
+    "sources"
+  ]
+}
