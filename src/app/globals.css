@@ -919,7 +919,8 @@ button {
   color: var(--ink);
 }
 .q-text {
-  min-height: calc(var(--line) * 2);
+  margin-top: var(--line);
+  min-height: calc(var(--line) * 3);
   font-size: 21px;
   font-weight: 600;
   line-height: var(--line);
@@ -969,8 +970,9 @@ button {
 
 .q-hint {
   margin-top: var(--line);
+  min-height: var(--line);
   font-size: 13px;
-  line-height: 20px;
+  line-height: var(--line);
   color: var(--muted);
 }
 
@@ -1278,13 +1280,26 @@ button {
 }
 
 /* ── 1단계 문항 번호와 이동 화살표: ‹ 3 / 10 › ─────────────────────────────── */
+/* 문항 머리: 왼쪽 "1단계 / 5 · 평소의 나", 오른쪽 ‹ 3/10 › — 한 괘선 줄에 나란히 */
+.q-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  height: var(--line);
+}
+.q-head .step-label {
+  height: auto;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
 .q-stepper {
   display: inline-flex;
   align-items: center;
   gap: 2px;
   height: var(--line);
-  margin-top: var(--line);
-  margin-left: -10px;
+  margin-right: -10px;
 }
 .q-stepper .q-count {
   height: auto;
@@ -1332,4 +1347,17 @@ button {
   font-size: 12px;
   line-height: 18px;
   color: var(--muted);
+}
+
+/* ── 글자 선택·복사 막기(D46): 결과의 해석 프롬프트 텍스트 상자만 허용 ─────────────────────────────── */
+body {
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-touch-callout: none;
+}
+.fallback-text,
+.selectable {
+  -webkit-user-select: text;
+  user-select: text;
+  -webkit-touch-callout: default;
 }

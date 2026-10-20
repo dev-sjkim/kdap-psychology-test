@@ -3,8 +3,9 @@ interface Props {
   fills: number[];
   /** 지금 단계 번호(0부터) */
   current: number;
-  onBack: () => void;
-  backLabel: string;
+  /** 없으면 뒤로 버튼 자리를 비워 둔다(1단계는 문항 스테퍼가 이동을 맡는다, D45) */
+  onBack?: () => void;
+  backLabel?: string;
 }
 
 /**
@@ -15,11 +16,15 @@ export function ProgressBand({ fills, current, onBack, backLabel }: Props) {
   const done = fills.filter((f, i) => i < current && f >= 1).length;
   return (
     <div className="band band-progress">
-      <button type="button" className="icon-btn" onClick={onBack} aria-label={backLabel}>
-        <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true">
-          <path d="M15 5 L8 12 L15 19" />
-        </svg>
-      </button>
+      {onBack ? (
+        <button type="button" className="icon-btn" onClick={onBack} aria-label={backLabel}>
+          <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true">
+            <path d="M15 5 L8 12 L15 19" />
+          </svg>
+        </button>
+      ) : (
+        <span className="icon-btn" aria-hidden="true" />
+      )}
       <div className="prog-track" role="progressbar" aria-label="진행" aria-valuemin={0} aria-valuemax={fills.length} aria-valuenow={done}>
         {fills.map((f, i) => (
           <span key={i} className={i < current && f >= 1 ? "done" : i === current ? "now" : ""}>

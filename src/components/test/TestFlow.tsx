@@ -83,25 +83,22 @@ export function TestFlow({ stepId }: { stepId: StepId }) {
     return Math.min(1, state.picks[s.id as PickStepId].length / s.min) * 0.9;
   });
 
-  const goBack = () => {
-    if (step.kind === "likert" && state.likertIndex > 0) testStore.likertBack();
-    else if (index === 0) router.push("/");
-    else router.push(stepPath(STEPS[index - 1].id));
-  };
-  const atVeryStart = index === 0 && state.likertIndex === 0;
-
-  const band = <ProgressBand fills={fills} current={index} onBack={goBack} backLabel={atVeryStart ? "처음 화면으로" : "이전으로"} />;
-
+  // 1단계는 문항 스테퍼(‹ 3/10 ›)가 이동을 맡으므로 맨 위 화살표를 두지 않는다(D45).
   if (step.kind === "likert") {
     return (
-      <Notebook band={band}>
+      <Notebook band={<ProgressBand fills={fills} current={index} />}>
         <div className="enter" key={`likert-${state.likertIndex}`}>
-          <LikertQuestion index={state.likertIndex} onDone={() => router.push(stepPath(STEPS[1].id))} />
+          <LikertQuestion
+            index={state.likertIndex}
+            onHome={() => router.push("/")}
+            onDone={() => router.push(stepPath(STEPS[1].id))}
+          />
         </div>
       </Notebook>
     );
   }
 
+  const band = <ProgressBand fills={fills} current={index} onBack={() => router.push(stepPath(STEPS[index - 1].id))} backLabel="이전 단계로" />;
   return (
     <Notebook band={band} foot={<StepFoot key={step.id} step={step} />}>
       <div className="enter" key={step.id}>

@@ -137,9 +137,10 @@ test("메인 화면은 늘 시작하기만 있고, 새로고침해도 고른 단
 
 test("문항 번호 옆 ‹ › 로 오가고, 화살표는 숨지 않고 비활성으로 남는다", async ({ page }) => {
   await startTest(page);
-  const prev = page.getByRole("button", { name: "이전 문항" });
+  // 첫 문항의 ‹는 처음 화면으로 가는 버튼이고, 맨 위에는 따로 뒤로 화살표가 없다(D45).
+  await expect(page.getByRole("button", { name: "처음 화면으로" })).toBeVisible();
+  await expect(page.locator(".band-progress button")).toHaveCount(0);
   const next = page.getByRole("button", { name: "다음 문항" });
-  await expect(prev).toBeDisabled();
   await expect(next).toBeDisabled();
   await page.waitForTimeout(500); // 문항 전환 애니메이션이 끝난 뒤 잰다
   const arrowBox = await next.boundingBox();
@@ -148,6 +149,7 @@ test("문항 번호 옆 ‹ › 로 오가고, 화살표는 숨지 않고 비활
     await page.waitForTimeout(340);
   }
   await expect(page.locator(".q-count b")).toHaveText("4");
+  const prev = page.getByRole("button", { name: "이전 문항" });
   await prev.click();
   await prev.click();
   await expect(page.locator(".q-count b")).toHaveText("2");
@@ -222,4 +224,18 @@ test("배경음 버튼은 모든 화면에서 왼쪽 여백 칸 같은 자리에
   await page.getByRole("button", { name: "시작하기" }).click();
   const testBox = await page.locator("button[aria-label*='배경음']:visible").boundingBox();
   expect(testBox).toEqual(startBox);
+});
+
+test("글자는 드래그로 선택되지 않고, 결과의 프롬프트 상자만 선택할 수 있다", async ({ page }) => {
+  await page.addInitScript(() => {
+    Object.defineProperty(navigator, "clipboard", { value: { writeText: () => Promise.reject(new Error("blocked")) } });
+    document.execCommand = () => false;
+  });
+  await page.goto("/");
+  const sel = (q: string) => page.locator(q).first().evaluate((el) => getComputedStyle(el).userSelect);
+  expect(await sel(".lede")).toBe("none");
+  await walk(page);
+  expect(await sel(".card-def")).toBe("none");
+  await page.getByRole("button", { name: "AI에게 해석 받기" }).click();
+  expect(await sel(".fallback-text")).toBe("text");
 });
