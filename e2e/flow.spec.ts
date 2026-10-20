@@ -299,6 +299,15 @@ test("배경음 버튼은 모든 화면 맨 위 줄 오른쪽 끝에 있고, 오
       await page.mouse.move(5, 400);
       await expect.poll(opacity).toBe("0");
     }
+    // 탭/창으로 돌아오면 카운터를 한 번 더 읽는다(D74). 타이머 폴링은 없다.
+    let reads = 0;
+    page.on("request", (r) => {
+      if (r.url().includes("completion_counter")) reads++;
+    });
+    await page.waitForTimeout(1500);
+    expect(reads).toBe(0);
+    await page.evaluate(() => window.dispatchEvent(new Event("focus")));
+    await expect.poll(() => reads).toBe(1);
   }
   // "?" 버튼은 메인 화면에만 있다.
   await expect(page.getByRole("button", { name: "마음결에 대해" })).toBeVisible();
