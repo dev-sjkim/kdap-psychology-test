@@ -1684,7 +1684,8 @@ body {
   line-height: 20px;
 }
 /* 고마운 것들: 접지 않고 늘 보이는 작은 각주 한 줄(D60) */
-.thanks {
+/* `.modal p`보다 우선하도록 선택자를 올린다 */
+.modal .maker-card p.thanks {
   margin-top: 4px;
   padding-top: 8px;
   border-top: 1px dashed var(--slip-edge);
@@ -1693,4 +1694,6 @@ body {
   color: var(--muted);
   text-wrap: pretty;
 }
+.modal .maker-card p.maker-kicker { font-size: 12px; line-height: 18px; }
+.modal .maker-card p.maker-contact .field-label { font-size: 12px; }
 
