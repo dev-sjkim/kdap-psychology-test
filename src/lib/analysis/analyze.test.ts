@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 import { LIKERT_ITEMS } from "@/data/likert";
 import { VALUE_IDS } from "@/data/values";
 import { RELEASE_WORDS, TRAIT_ORDER, VALUE_WORDS } from "@/data/words";
-import { analyze, findPatterns, tendencyOf, traitValueLink, valueOrder } from "./analyze";
+import { analyze, findPatterns, pickClearAnswers, tendencyOf, traitValueLink, valueOrder } from "./analyze";
 import { sampleInput } from "./fixtures";
 
 describe("문항과 단어 목록", () => {
@@ -13,6 +13,14 @@ describe("문항과 단어 목록", () => {
       expect(items).toHaveLength(4);
       expect(items.some((i) => i.keyed === "+")).toBe(true);
       expect(items.some((i) => i.keyed === "-")).toBe(true);
+    }
+  });
+
+  it("성격 문항마다 아니라고 답했을 때 사실이 되는 반대 문장이 있다(D76)", () => {
+    for (const i of LIKERT_ITEMS) {
+      expect(i.oppositeText.length).toBeGreaterThan(5);
+      expect(i.oppositeText).not.toBe(i.text);
+      expect(i.oppositeText.endsWith("요.")).toBe(true);
     }
   });
 
@@ -84,6 +92,14 @@ describe("analyze", () => {
     expect(viaWord.at(-1)).toBe("마지막에 내려놓은 '모험'과 같은 쪽인 새로움을 키우고 싶은 힘으로 다시 골랐어요.");
     const sameName = findPatterns([], kept, [{ word: "영향력", valueId: "power" }], [], ["power"]);
     expect(sameName.at(-1)).toBe("마지막에 내려놓은 '영향력'을 키우고 싶은 힘으로 다시 골랐어요.");
+  });
+
+  it("가장 분명하게 답한 문항을 최대 4개, 양 끝 답을 먼저, 같은 세기면 다른 특성을 먼저 고른다(D76)", () => {
+    const answers = Object.fromEntries(LIKERT_ITEMS.map((i) => [i.id, 3]));
+    Object.assign(answers, { mipip_01: 5, mipip_06: 1, mipip_03: 5, mipip_13: 4, mipip_05: 2 });
+    const picked = pickClearAnswers(answers);
+    expect(picked.map((c) => c.itemId)).toEqual(["mipip_01", "mipip_03", "mipip_06", "mipip_05"]);
+    expect(pickClearAnswers(Object.fromEntries(LIKERT_ITEMS.map((i) => [i.id, 3])))).toEqual([]);
   });
 
   it("가치 순서: 남긴 순위가 앞서고, 같은 점수면 더 높은 순위로 남긴 가치가 먼저다", () => {

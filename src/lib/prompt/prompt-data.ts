@@ -1,7 +1,8 @@
-// 해석 프롬프트에 넣는 데이터(version 4). 계산과 정리를 끝낸 상태로, 키는 짧은 영어, 값은 한국어로 넣는다.
+// 해석 프롬프트에 넣는 데이터(version 5, D76에서 clear_answers 추가). 계산과 정리를 끝낸 상태로, 키는 짧은 영어, 값은 한국어로 넣는다.
 // 응답 시간(밀리초), 단어·문항 id, 섞은 순서, 앱 버전은 넣지 않는다.
 
 import { z } from "zod";
+import { LIKERT_BY_ID } from "@/data/likert";
 import { REFERENCES } from "@/data/references";
 import { VALUES } from "@/data/values";
 import { TRAITS } from "@/data/words";
@@ -16,10 +17,11 @@ export const LIMITATIONS = [
 const BAND_LABEL = { high: "높은 쪽", middle: "중간", low: "낮은 쪽" } as const;
 
 export const promptDataSchema = z.object({
-  version: z.literal(4),
+  version: z.literal(5),
   date: z.string(),
   card: z.object({ value: z.string(), picture: z.string() }),
   personality: z.array(z.object({ trait: z.string(), band: z.string(), lean: z.string(), strong: z.boolean() })),
+  clear_answers: z.array(z.object({ statement: z.string(), how_much: z.string() })),
   kept_values: z.array(z.object({ rank: z.number().int(), word: z.string(), value: z.string(), meaning: z.string() })),
   let_go_words: z.array(z.string()),
   now_feelings: z.array(z.string()),
@@ -34,12 +36,19 @@ export const promptDataSchema = z.object({
 
 export type PromptData = z.infer<typeof promptDataSchema>;
 
+/** 응답을 "나에게 사실인 문장"으로 바꾼다. 부정문에 아니라고 답한 것을 모델이 거꾸로 읽지 않게 한다(D76). */
+export function clearAnswerFact(c: Analysis["personality"]["clearAnswers"][number]) {
+  const item = LIKERT_BY_ID.get(c.itemId)!;
+  return { statement: c.answer > 3 ? item.text : item.oppositeText, how_much: Math.abs(c.answer - 3) === 2 ? "정말 그래요" : "대체로 그래요" };
+}
+
 export function buildPromptData(a: Analysis): PromptData {
   return {
-    version: 4,
+    version: 5,
     date: a.takenOn,
     card: { value: VALUES[a.card.valueId].label, picture: a.card.motif },
     personality: a.personality.tendencies.map((t) => ({ trait: TRAITS[t.trait].label, band: BAND_LABEL[t.band], lean: t.lean, strong: t.strong })),
+    clear_answers: a.personality.clearAnswers.map(clearAnswerFact),
     kept_values: a.values.kept.map((k) => ({ rank: k.rank, word: k.word, value: VALUES[k.valueId].label, meaning: VALUES[k.valueId].definition })),
     let_go_words: a.values.letGo.map((l) => l.word),
     now_feelings: a.now,

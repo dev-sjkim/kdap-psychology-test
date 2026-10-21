@@ -4,7 +4,7 @@
   "properties": {
     "version": {
       "type": "number",
-      "const": 4
+      "const": 5
     },
     "date": {
       "type": "string"
@@ -47,6 +47,24 @@
           "band",
           "lean",
           "strong"
+        ]
+      }
+    },
+    "clear_answers": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "statement": {
+            "type": "string"
+          },
+          "how_much": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "statement",
+          "how_much"
         ]
       }
     },
@@ -174,6 +192,7 @@
     "date",
     "card",
     "personality",
+    "clear_answers",
     "kept_values",
     "let_go_words",
     "now_feelings",

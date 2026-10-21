@@ -40,6 +40,13 @@ export interface Tendency {
   strong: boolean;
 }
 
+export interface ClearAnswer {
+  itemId: string;
+  trait: TraitId;
+  /** 1~5 */
+  answer: number;
+}
+
 export interface KeptWord {
   rank: number;
   wordId: string;
@@ -50,7 +57,8 @@ export interface KeptWord {
 export interface Analysis {
   takenOn: string;
   card: { valueId: ValueId; motif: string };
-  personality: { tendencies: Tendency[]; highlights: Tendency[] };
+  /** clearAnswers: 가장 분명하게 답한 문항(해석 프롬프트의 행동 근거, D76) */
+  personality: { tendencies: Tendency[]; highlights: Tendency[]; clearAnswers: ClearAnswer[] };
   values: {
     picked: { word: string; valueId: ValueId }[];
     kept: KeptWord[];
@@ -103,6 +111,27 @@ export function tendencyOf(trait: TraitId, answers: Record<string, number>): Ten
     lean: band === "middle" ? "상황에 따라 달라지는 편" : TRAITS[trait].lean[band],
     strong: Math.abs(mean - 3) >= 1.25,
   };
+}
+
+/**
+ * 가장 분명하게 답한 문항을 최대 max개 고른다(D76). "보통이에요"는 빼고, 양 끝(전혀·정말)을 먼저,
+ * 같은 세기면 아직 고르지 않은 특성을, 그다음 원판 문항 순서로. 지어낸 장면 대신 실제 응답을 행동 근거로 쓰기 위해서다.
+ */
+export function pickClearAnswers(answers: Record<string, number>, max = 4): ClearAnswer[] {
+  const candidates = LIKERT_ITEMS.map((i) => ({ itemId: i.id, trait: i.trait, answer: answers[i.id] })).filter((c) => c.answer !== 3);
+  const strength = (c: ClearAnswer) => Math.abs(c.answer - 3);
+  const out: ClearAnswer[] = [];
+  while (out.length < max) {
+    const used = new Set(out.map((c) => c.trait));
+    const left = candidates.filter((c) => !out.includes(c));
+    if (left.length === 0) break;
+    const next = left.reduce((best, c) => {
+      const d = strength(c) - strength(best) || Number(used.has(best.trait)) - Number(used.has(c.trait));
+      return d > 0 ? c : best;
+    });
+    out.push(next);
+  }
+  return out;
 }
 
 /**
@@ -226,7 +255,7 @@ export function analyze(input: TestInput): Analysis {
   return {
     takenOn: input.takenOn,
     card: { valueId: cardValue, ...RESULT_CARDS[cardValue] },
-    personality: { tendencies, highlights },
+    personality: { tendencies, highlights, clearAnswers: pickClearAnswers(input.answers) },
     values: {
       picked: input.picks.values.map((id) => ({ word: wordText(id), valueId: VALUE_WORD_BY_ID.get(id)!.value })),
       kept,
